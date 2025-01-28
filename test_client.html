@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>KoFi WebSocket Tester</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        .card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .log { background: #f5f5f5; padding: 10px; height: 200px; overflow-y: auto; margin: 10px 0; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>KoFi WebSocket Tester</h1>
+
+    <div class="card">
+        <h3>Server Configuration</h3>
+        <div style="margin-bottom: 10px;">
+            <label>Base URL:</label><br>
+            <input type="text" id="baseUrl" placeholder="Base URL" value="http://localhost:8000" style="width: 300px;">
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>WebSocket Connection</h3>
+        <input type="text" id="token" placeholder="Verification Token" value="test_token">
+        <button onclick="connectWebSocket()">Connect</button>
+        <button onclick="disconnectWebSocket()">Disconnect</button>
+        <button onclick="sendPing()">Send Ping</button>
+    </div>
+
+    <div class="card">
+        <h3>Simulate Webhook</h3>
+        <button onclick="simulateWebhook()">Send Test Webhook</button>
+    </div>
+
+    <div class="card">
+        <h3>Log</h3>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        let ws = null;
+
+        function log(message, isError = false) {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.classList.add(isError ? 'error' : 'success');
+            entry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function getBaseUrl() {
+            return document.getElementById('baseUrl').value.replace(/\/$/, '');
+        }
+
+        function connectWebSocket() {
+            const token = document.getElementById('token').value;
+            const baseUrl = getBaseUrl().replace('http', 'ws');
+            // Combine the endpoint and token correctly
+            ws = new WebSocket(`${baseUrl}/ws/${token}`);
+
+            ws.onopen = () => {
+                log('WebSocket connected');
+            };
+
+            ws.onmessage = (event) => {
+                log(`Received: ${event.data}`);
+                if (typeof event.data === 'string' && event.data !== 'pong') {
+                    const data = JSON.parse(event.data);
+                }
+            };
+
+            ws.onclose = () => {
+                log('WebSocket disconnected', true);
+                ws = null;
+            };
+
+            ws.onerror = (error) => {
+                log(`WebSocket error: ${error.message}`, true);
+            };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function sendPing() {
+            if (ws) {
+                ws.send('ping');
+                log('Sent: ping');
+            } else {
+                log('WebSocket not connected', true);
+            }
+        }
+
+        function simulateWebhook() {
+            const token = document.getElementById('token').value;
+            const baseUrl = getBaseUrl();
+            const webhookData = {
+                data: {
+                    verification_token: token,
+                    message_id: `test_${Date.now()}`,
+                    timestamp: new Date().toISOString(),
+                    type: "Donation",
+                    is_public: true,
+                    from_name: "Test User",
+                    message: "Test webhook message",
+                    amount: "5.00",
+                    url: "https://ko-fi.com/test",
+                    email: "test@example.com",
+                    currency: "USD",
+                    is_subscription_payment: false,
+                    is_first_subscription_payment: false,
+                    kofi_transaction_id: `TX_${Date.now()}`,
+                    shop_items: null,
+                    tier_name: null,
+                    shipping: null
+                }
+            };
+
+            fetch(`${baseUrl}/webhook/ko-fi`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(webhookData)
+            })
+            .then(response => response.json())
+            .then(data => log(`Webhook response: ${JSON.stringify(data)}`))
+            .catch(error => log(`Webhook error: ${error.message}`, true));
+        }
+    </script>
+</body>
+</html>
