@@ -69,5 +69,5 @@ jobs:
       with:
         push: true
         tags: |
-          kofi-websocket:latest
-          kofi-websocket:${{ steps.get_version.outputs.version }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:latest
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:${{ steps.get_version.outputs.version }}
