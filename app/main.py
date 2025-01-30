@@ -7,7 +7,7 @@ from datetime import datetime
 import json
 
 app = FastAPI(
-    version="1.0.0",
+    version="1.0.1",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -67,7 +67,15 @@ class KofiData(BaseModel):
 class KofiWebhook(BaseModel):
     data: KofiData
 
-@app.post("/webhook/ko-fi")
+@app.get("/ping")
+async def ping():
+    return {"message": "pong"}
+
+@app.get("/version")
+async def version():
+    return {"version": app.version}
+
+@app.post("/webhook")
 async def ko_fi_webhook(webhook_data: KofiWebhook):
     """Handle incoming Ko-fi webhook data and forward it to connected WebSocket clients."""
     verification_token = webhook_data.data.verification_token
