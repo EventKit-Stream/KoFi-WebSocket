@@ -28,7 +28,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run tests
-        run: pytest --cov=app tests/ --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
+        run: pytest --cov=app tests/ --cov-report=xml --junitxml=junit.xml -o junit_family=legacy --cov-report=term-missing
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
