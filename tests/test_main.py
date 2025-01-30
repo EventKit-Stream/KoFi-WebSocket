@@ -59,7 +59,7 @@ def sample_shop_webhook_data(sample_webhook_data):
 
 
 def test_webhook_without_active_connection(client, sample_webhook_data):
-    response = client.post("/webhook/ko-fi", json=sample_webhook_data)
+    response = client.post("/webhook", json=sample_webhook_data)
     assert response.status_code == 200
     assert response.json() == {"status": "success"}
 
@@ -78,12 +78,12 @@ async def test_webhook_with_active_connection(client, sample_webhook_data):
         sample_webhook_data["data"]["verification_token"] = "test_token"
         # Ensure timestamp is a string
         sample_webhook_data["data"]["timestamp"] = datetime.now().isoformat()
-        response = client.post("/webhook/ko-fi", json=sample_webhook_data)
+        response = client.post("/webhook", json=sample_webhook_data)
         assert response.status_code == 200
 
 
 def test_shop_order_webhook(client, sample_shop_webhook_data):
-    response = client.post("/webhook/ko-fi", json=sample_shop_webhook_data)
+    response = client.post("/webhook", json=sample_shop_webhook_data)
     assert response.status_code == 200
     assert response.json() == {"status": "success"}
 
@@ -149,7 +149,7 @@ async def test_webhook_connection_error_retry(client, sample_webhook_data):
         try:
             # Update verification token to match WebSocket connection
             sample_webhook_data["data"]["verification_token"] = "test_token"
-            response = client.post("/webhook/ko-fi", json=sample_webhook_data)
+            response = client.post("/webhook", json=sample_webhook_data)
             assert response.status_code == 200
             assert error_count > 1  # Verify that retries occurred
         finally:
@@ -172,7 +172,7 @@ async def test_webhook_max_retries_exceeded(client, sample_webhook_data):
         try:
             # Update verification token to match WebSocket connection
             sample_webhook_data["data"]["verification_token"] = "test_token"
-            response = client.post("/webhook/ko-fi", json=sample_webhook_data)
+            response = client.post("/webhook", json=sample_webhook_data)
             assert response.status_code == 200
             # Import the active_connections from main module
             from app.main import active_connections
@@ -199,7 +199,7 @@ async def test_webhook_websocket_disconnect(client, sample_webhook_data):
         try:
             # Update verification token to match WebSocket connection
             sample_webhook_data["data"]["verification_token"] = "test_token"
-            response = client.post("/webhook/ko-fi", json=sample_webhook_data)
+            response = client.post("/webhook", json=sample_webhook_data)
             assert response.status_code == 200
             # Import the active_connections from main module
             from app.main import active_connections
@@ -208,3 +208,9 @@ async def test_webhook_websocket_disconnect(client, sample_webhook_data):
         finally:
             # Restore original method
             WebSocket.send_json = original_send_json
+
+
+def test_ping_endpoint(client):
+    response = client.get("/ping")
+    assert response.status_code == 200
+    assert response.json() == {"message": "pong"}

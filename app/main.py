@@ -71,7 +71,7 @@ class KofiWebhook(BaseModel):
 async def ping():
     return {"message": "pong"}
 
-@app.post("/webhook/ko-fi")
+@app.post("/webhook")
 async def ko_fi_webhook(webhook_data: KofiWebhook):
     """Handle incoming Ko-fi webhook data and forward it to connected WebSocket clients."""
     verification_token = webhook_data.data.verification_token
