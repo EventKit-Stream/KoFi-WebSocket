@@ -22,7 +22,7 @@ A FastAPI application that bridges KoFi webhooks to WebSocket connections, enabl
 ### Clone the Repository
 
 ```sh
-git clone https://github.com/yourusername/KoFi-WebSocket.git
+git clone https://github.com/EventKit-Stream/KoFi-WebSocket.git
 cd KoFi-WebSocket
 ```
 
@@ -39,8 +39,10 @@ pip install -r requirements.txt
 To run the application locally, use the following command:
 
 ```sh
-fastapi ./app/main.py --host 0.0.0.0 --port 8000
+fastapi run ./app/main.py --host 0.0.0.0 --port 8000
 ```
+
+The `host` and `port` are optional.
 
 ### Running with Docker
 
