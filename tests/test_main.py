@@ -220,3 +220,4 @@ def test_version_endpoint(client):
     response = client.get("/version")
     assert response.status_code == 200
     assert response.json() == {"version": app.version}
+  
