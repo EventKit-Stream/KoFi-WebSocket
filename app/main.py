@@ -1,5 +1,7 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
+import os
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 from typing import Dict, List, Optional
@@ -8,8 +10,14 @@ from datetime import datetime
 import json
 from fastapi.staticfiles import StaticFiles
 
+# Get domain from environment variable or use default
+HOSTNAME = os.getenv('HOSTNAME', '<your_domain>')
+
+# Initialize templates
+templates = Jinja2Templates(directory="static")
+
 app = FastAPI(
-    version="1.0.1",
+    version="1.0.2",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -17,10 +25,14 @@ app = FastAPI(
 # Mount the static directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Serve index.html at root
-@app.get("/")
-async def root():
-    return FileResponse("static/index.html")
+# Replace the existing root endpoint
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"HOSTNAME": HOSTNAME}
+    )
 
 app.add_middleware(
     CORSMiddleware,

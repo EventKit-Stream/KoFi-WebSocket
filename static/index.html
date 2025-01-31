@@ -349,7 +349,7 @@
             <h2>Quick Start</h2>
             <p>Connect to the WebSocket endpoint using your verification token:</p>
             <div class="code-block">
-                <pre>ws://kofi-api.eventkit.stream//ws/{verification_token}</pre>
+                <pre>ws://{{ HOSTNAME }}//ws/{verification_token}</pre>
             </div>
         </section>
 
@@ -402,13 +402,13 @@ Content-Type: application/json
             <h3>2. Set Up Ko-fi Webhook</h3>
             <p>In your Ko-fi settings, set your Webhook URL to:</p>
             <div class="code-block">
-                <pre>https://kofi-api.eventkit.stream/webhook</pre>
+                <pre>https://{{ HOSTNAME }}/webhook</pre>
             </div>
 
             <h3>3. Connect to WebSocket</h3>
             <p>Connect to the WebSocket using your verification token:</p>
             <div class="code-block">
-                <pre>const ws = new WebSocket('ws://kofi-api.eventkit.stream/ws/YOUR_VERIFICATION_TOKEN');</pre>
+                <pre>const ws = new WebSocket('ws://{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
             </div>
 
             <h3>4. Handle Events</h3>
@@ -445,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         connect() {
-            this.ws = new WebSocket(`ws://kofi-api.eventkit.stream/ws/${this.token}`);
+            this.ws = new WebSocket(`ws://{{ HOSTNAME }}/ws/${this.token}`);
             
             this.ws.onopen = () => {
                 console.log('Connected to Ko-fi WebSocket');
@@ -574,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pre.innerHTML = `<code class="language-${language}">${pre.innerHTML}</code>`;
 
             // Add copy button only to the webhook setup code block
-            if (pre.textContent.includes('kofi-api.eventkit.stream/webhook')) {
+            if (pre.textContent.includes('{{ HOSTNAME }}/webhook')) {
                 const copyButton = document.createElement('button');
                 copyButton.className = 'copy-button';
                 copyButton.innerHTML = `
