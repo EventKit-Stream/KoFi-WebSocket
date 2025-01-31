@@ -1,16 +1,27 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from pydantic import BaseModel
-from starlette.middleware.cors import CORSMiddleware
 from typing import Dict, List, Optional
 import asyncio
 from datetime import datetime
 import json
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     version="1.0.1",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
+
+# Mount the static directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Serve index.html at root
+
+@app.get("/")
+async def _root():
+    return FileResponse("static/index.html")
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,10 +33,12 @@ app.add_middleware(
 
 active_connections: Dict[str, WebSocket] = {}
 
+
 class ShopItem(BaseModel):
     direct_link_code: str
     variation_name: str
     quantity: int
+
 
 class ShippingInfo(BaseModel):
     full_name: str
@@ -36,6 +49,7 @@ class ShippingInfo(BaseModel):
     country: str
     country_code: str
     telephone: str
+
 
 class KofiData(BaseModel):
     verification_token: str
@@ -64,16 +78,20 @@ class KofiData(BaseModel):
         }
     }
 
+
 class KofiWebhook(BaseModel):
     data: KofiData
+
 
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
 
+
 @app.get("/version")
 async def version():
     return {"version": app.version}
+
 
 @app.post("/webhook")
 async def ko_fi_webhook(webhook_data: KofiWebhook):
@@ -99,6 +117,7 @@ async def ko_fi_webhook(webhook_data: KofiWebhook):
                 await websocket.close()
                 del active_connections[verification_token]
     return {"status": "success"}
+
 
 @app.websocket("/ws/{verification_token}")
 async def websocket_endpoint(websocket: WebSocket, verification_token: str):
