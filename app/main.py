@@ -3,8 +3,6 @@ import asyncio
 from datetime import datetime
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
@@ -16,12 +14,6 @@ app = FastAPI(
 
 # Mount the static directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Serve index.html at root
-
-@app.get("/")
-async def _root():
-    return FileResponse("static/index.html")
 
 app.add_middleware(
     CORSMiddleware,
