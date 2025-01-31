@@ -12,9 +12,6 @@ app = FastAPI(
     redoc_url=None  # Disable ReDoc
 )
 
-# Mount the static directory
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
