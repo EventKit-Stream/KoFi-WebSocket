@@ -66,7 +66,7 @@ ws://localhost:8000/ws/{verification_token}
 Send a POST request to the webhook endpoint with the required data:
 
 ```http
-POST /webhook/ko-fi
+POST /webhook
 Content-Type: application/json
 
 {
