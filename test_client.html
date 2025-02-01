@@ -1,16 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>KoFi WebSocket Tester</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 0 20px; }
-        .card { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px; }
-        .log { background: #f5f5f5; padding: 10px; height: 200px; overflow-y: auto; margin: 10px 0; }
-        .success { color: green; }
-        .error { color: red; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .log {
+            background: #f5f5f5;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .error {
+            color: red;
+        }
     </style>
 </head>
+
 <body>
     <h1>KoFi WebSocket Tester</h1>
 
@@ -103,38 +129,41 @@
             const token = document.getElementById('token').value;
             const baseUrl = getBaseUrl();
             const webhookData = {
-                data: {
-                    verification_token: token,
-                    message_id: `test_${Date.now()}`,
-                    timestamp: new Date().toISOString(),
-                    type: "Donation",
-                    is_public: true,
-                    from_name: "Test User",
-                    message: "Test webhook message",
-                    amount: "5.00",
-                    url: "https://ko-fi.com/test",
-                    email: "test@example.com",
-                    currency: "USD",
-                    is_subscription_payment: false,
-                    is_first_subscription_payment: false,
-                    kofi_transaction_id: `TX_${Date.now()}`,
-                    shop_items: null,
-                    tier_name: null,
-                    shipping: null
-                }
+                verification_token: token,
+                message_id: `test_${Date.now()}`,
+                timestamp: new Date().toISOString(),
+                type: "Donation",
+                is_public: true,
+                from_name: "Test User",
+                message: "Test webhook message",
+                amount: "5.00",
+                url: "https://ko-fi.com/test",
+                email: "test@example.com",
+                currency: "USD",
+                is_subscription_payment: false,
+                is_first_subscription_payment: false,
+                kofi_transaction_id: `TX_${Date.now()}`,
+                shop_items: null,
+                tier_name: null,
+                shipping: null
             };
+
+            // Create form data with proper encoding
+            const formData = new URLSearchParams();
+            formData.append('data', JSON.stringify(webhookData));
 
             fetch(`${baseUrl}/webhook`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: JSON.stringify(webhookData)
+                body: formData
             })
-            .then(response => response.json())
-            .then(data => log(`Webhook response: ${JSON.stringify(data)}`))
-            .catch(error => log(`Webhook error: ${error.message}`, true));
+                .then(response => response.json())
+                .then(data => log(`Webhook response: ${JSON.stringify(data)}`))
+                .catch(error => log(`Webhook error: ${error.message}`, true));
         }
     </script>
 </body>
+
 </html>

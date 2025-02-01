@@ -1,14 +1,13 @@
 import os
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
-from fastapi.responses import FileResponse, HTMLResponse
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from starlette.middleware.cors import CORSMiddleware
-from typing import Dict, List, Optional
+from typing import Dict
 import asyncio
-from datetime import datetime
 import json
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, Form
+from fastapi.responses import HTMLResponse
+from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.middleware.cors import CORSMiddleware
 
 # Get domain from environment variable or use default
 HOSTNAME = os.getenv('HOSTNAME', '<your_domain>')
@@ -17,8 +16,8 @@ HOSTNAME = os.getenv('HOSTNAME', '<your_domain>')
 templates = Jinja2Templates(directory="static")
 
 app = FastAPI(
-    version="1.0.2",
-    docs_url=None,  # Disable Swagger UI
+    version="1.1.0",
+    # docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
 
@@ -44,51 +43,6 @@ app.add_middleware(
 
 active_connections: Dict[str, WebSocket] = {}
 
-class ShopItem(BaseModel):
-    direct_link_code: str
-    variation_name: str
-    quantity: int
-
-class ShippingInfo(BaseModel):
-    full_name: str
-    street_address: str
-    city: str
-    state_or_province: str
-    postal_code: str
-    country: str
-    country_code: str
-    telephone: str
-
-class KofiData(BaseModel):
-    verification_token: str
-    message_id: str
-    timestamp: datetime
-    type: str
-    is_public: bool
-    from_name: str
-    message: Optional[str]
-    amount: str
-    url: str
-    email: str
-    currency: str
-    is_subscription_payment: bool
-    is_first_subscription_payment: bool
-    kofi_transaction_id: str
-    shop_items: Optional[List[ShopItem]]
-    tier_name: Optional[str]
-    shipping: Optional[ShippingInfo]
-
-    model_config = {
-        'json_schema_extra': {
-            'json_encoders': {
-                datetime: lambda v: v.isoformat()
-            }
-        }
-    }
-
-class KofiWebhook(BaseModel):
-    data: KofiData
-
 @app.get("/ping")
 async def ping():
     return {"message": "pong"}
@@ -98,17 +52,17 @@ async def version():
     return {"version": app.version}
 
 @app.post("/webhook")
-async def ko_fi_webhook(webhook_data: KofiWebhook):
+async def ko_fi_webhook(data: str = Form(...)):
     """Handle incoming Ko-fi webhook data and forward it to connected WebSocket clients."""
-    verification_token = webhook_data.data.verification_token
+    webhook_data = json.loads(data)
+    verification_token = webhook_data.get('verification_token')
+    if not verification_token:
+        raise HTTPException(status_code=400, detail="Missing verification_token")
     if verification_token in active_connections:
         websocket = active_connections[verification_token]
         for _ in range(3):  # Try 3 times
             try:
-                # Use model_dump_json() to properly handle datetime serialization
-                json_str = webhook_data.data.model_dump_json()
-                webhook_json = json.loads(json_str)
-                await websocket.send_json(webhook_json)
+                await websocket.send_json(webhook_data)
                 break
             except WebSocketDisconnect:
                 if verification_token in active_connections:
