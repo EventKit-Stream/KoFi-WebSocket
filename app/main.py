@@ -16,7 +16,7 @@ HOSTNAME = os.getenv('HOSTNAME', '<your_domain>')
 templates = Jinja2Templates(directory="static")
 
 app = FastAPI(
-    version="1.0.0",
+    version="0.1.0",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
