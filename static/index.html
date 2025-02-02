@@ -579,7 +579,7 @@ ws.onmessage = (event) => {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
     <script>
-        // Add this before the existing script content
+        // Fetch the version from the server
         fetch('/version')
             .then(response => response.json())
             .then(data => {
