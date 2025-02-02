@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KoFi WebSocket Bridge</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-link: hsl(221, 83%, 25%);
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --glass-bg: rgba(0, 0, 0, 0.2);
+                --glass-border: rgba(255, 255, 255, 0.1);
+                --text-primary: #e2e8f0;
+                --text-secondary: #94a3b8;
+                --text-link: hsl(221, 83%, 75%);
+                --bg-primary: #0f172a;
+                --bg-secondary: #1e293b;
+                --shadow: rgba(0, 0, 0, 0.3);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px var(--shadow);
+        }
+
+        .header {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        a {
+            color: var(--text-link);
+            text-decoration: none;
+        }
+
+        .description {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .code-block {
+            position: relative;
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.5rem;
+            background: var(--glass-bg);
+            border: 1px solid var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            color: var(--text-primary);
+            /* Add this line to match theme text color */
+        }
+
+        .code-block:hover .copy-button {
+            opacity: 1;
+        }
+
+        .copy-button:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        .copy-button svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            /* This ensures the SVG inherits the button's color */
+        }
+
+        .copy-button.copied {
+            background: rgba(128, 128, 128, 0.5);
+            color: white;
+            /* Ensure icon is white when copied */
+        }
+
+        /* Override Prism styles to match our theme */
+        pre[class*="language-"] {
+            background: transparent;
+            margin: 0;
+            padding: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        code[class*="language-"] {
+            text-shadow: none;
+            padding: 0;
+        }
+
+        .token.comment,
+        .token.prolog,
+        .token.doctype,
+        .token.cdata {
+            color: #8b9cb3;
+        }
+
+        .token.punctuation {
+            color: #93a4c4;
+        }
+
+        .token.property,
+        .token.keyword,
+        .token.tag {
+            color: #c792ea;
+        }
+
+        .token.class-name {
+            color: #ffcb6b;
+        }
+
+        .token.string,
+        .token.attr-value {
+            color: #c3e88d;
+        }
+
+        @media (prefers-color-scheme: light) {
+
+            .token.comment,
+            .token.prolog,
+            .token.doctype,
+            .token.cdata {
+                color: #637777;
+            }
+
+            .token.punctuation {
+                color: #4a5568;
+            }
+
+            .token.property,
+            .token.keyword,
+            .token.tag {
+                color: #805ad5;
+            }
+
+            .token.class-name {
+                color: #c2410c;
+            }
+
+            .token.string,
+            .token.attr-value {
+                color: #059669;
+            }
+        }
+
+        .button {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px var(--shadow);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .feature-card h3 {
+            padding-top: 0;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .social-links a {
+            color: var(--text-primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+        }
+
+        .social-links a:hover {
+            transform: translateY(-2px);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        #kofi-notifications {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .kofi-notification {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 10px;
+            animation: slideIn 0.3s ease-out;
+            color: var(--text-primary);
+        }
+
+        .kofi-notification.success {
+            border-left: 4px solid #22c55e;
+        }
+
+        .kofi-notification.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        .kofi-notification.info {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        h3 {
+            padding-top: 1.5rem;
+        }
+
+        .glass-card ol {
+            padding-left: 2rem;
+            margin: 0.5rem 0;
+        }
+
+        .glass-card ol li {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="header glass-card">
+            <h1>Ko-Fi WebSocket Bridge</h1>
+            <p class="description">
+                A modern, real-time bridge between Ko-fi webhooks and WebSocket connections, enabling instant
+                notifications for your Ko-fi events.
+            </p>
+            <div style="margin-top: 2rem;">
+                <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" class="button">View on GitHub</a>
+            </div>
+        </header>
+
+        <section class="glass-card">
+            <h2>Quick Start</h2>
+            <p>Connect to the WebSocket endpoint using your verification token:</p>
+            <div class="code-block">
+                <pre>{{ WSprotocol }}://{{ HOSTNAME }}/ws/{verification_token}</pre>
+            </div>
+        </section>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>Real-time Updates</h3>
+                <p>Instant notification delivery via WebSocket connections</p>
+            </div>
+            <div class="feature-card">
+                <h3>Secure</h3>
+                <p>Token-based authentication for secure communications</p>
+            </div>
+            <div class="feature-card">
+                <h3>Universal Support</h3>
+                <p>Compatible with all Ko-fi event types</p>
+            </div>
+            <div class="feature-card">
+                <h3>Easy Integration</h3>
+                <p>Simple to integrate with any WebSocket client</p>
+            </div>
+        </div>
+
+        <section class="glass-card">
+            <h2>Getting Started</h2>
+            <h3>1. Get Your Verification Token</h3>
+            <p>To find your Ko-fi verification token:</p>
+            <ol>
+                <li>Go to your <a href="https://ko-fi.com/manage" target="_blank" rel="noopener noreferrer">Ko-fi
+                        Dashboard</a></li>
+                <li>Click on "<a href="https://ko-fi.com/manage/webhooks" target="_blank"
+                        rel="noopener noreferrer">API</a>" in the left menu (under "More")</li>
+                <li>Find your verification token in the "Advanced" section</li>
+                <li>Copy the token, you'll need it for the WebSocket setup</li>
+            </ol>
+
+            <h3>2. Set Up Ko-fi Webhook</h3>
+            <p>In your Ko-fi settings, set your Webhook URL to:</p>
+            <div class="code-block">
+                <pre id="webhook-url">{{ HTTPprotocol }}://{{ HOSTNAME }}/webhook</pre>
+            </div>
+
+            <h3>3. Connect to WebSocket</h3>
+            <p>Connect to the WebSocket using your verification token:</p>
+            <div class="code-block">
+                <pre>const ws = new WebSocket('{{ WSprotocol }}://{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
+            </div>
+
+            <h3>4. Handle Events</h3>
+            <p>Example code to handle Ko-fi notifications:</p>
+            <div class="code-block">
+                <pre>
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    switch(data.type) {
+        case "Donation":
+            console.log(`New donation from ${data.from_name}: ${data.amount} ${data.currency}`);
+            break;
+        case "Subscription":
+            console.log(`New subscriber: ${data.from_name}`);
+            break;
+        case "Shop Order":
+            console.log(`New shop order from ${data.from_name}`);
+            break;
+    }
+};</pre>
+            </div>
+
+            <h3>Example Implementation</h3>
+            <p>Here's a complete, fully functional, example that connects on page load:</p>
+            <div class="code-block">
+                <pre id="example-implementation">
+&lt;!-- Add this to your HTML --&gt;
+&lt;div id="kofi-notifications"&gt;&lt;/div&gt;
+
+&lt;!-- Add this to your JavaScript file or &lt;script&gt; tag --&gt;
+&lt;script&gt;
+    document.addEventListener('DOMContentLoaded', () => {
+        class KofiWebSocket {
+            constructor(token) {
+                this.token = token;
+                this.connect();
+            }
+
+            connect() {
+                this.ws = new WebSocket(`{{ WSprotocol }}://{{ HOSTNAME }}/ws/${this.token}`);
+
+                this.ws.onopen = () => {
+                    console.log('Connected to Ko-fi WebSocket');
+                    this.showNotification('Connected to Ko-fi WebSocket', 'success');
+                };
+
+                this.ws.onmessage = (event) => {
+                    // Create and dispatch a custom event
+                    const kofiEvent = new CustomEvent('onEventReceived', {
+                        detail: {
+                            event: JSON.parse(event.data)
+                        }
+                    });
+                    switch (kofiEvent.detail.event.type) {
+                        case "Donation":
+                            kofiEvent.detail.listener = "kofi-donation-latest";
+                            break;
+                        case "Subscription":
+                            kofiEvent.detail.listener = "kofi-subscription-latest";
+                            break;
+                        case "Shop Order":
+                            kofiEvent.detail.listener = "kofi-order-latest";
+                            break;
+                        default:
+                            kofiEvent.detail.listener = `kofi-${eventData.type.toLowerCase()}-latest`;
+                    }
+                    document.dispatchEvent(kofiEvent);
+                };
+
+                this.ws.onclose = () => {
+                    console.log('Disconnected from Ko-fi WebSocket');
+                    this.showNotification('Connection lost, reconnecting...', 'error');
+                    // Reconnect after 5 seconds
+                    setTimeout(() => this.connect(), 5000);
+                };
+
+                this.ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    this.showNotification('Connection error', 'error');
+                };
+            }
+
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `kofi-notification ${type}`;
+                notification.innerHTML = `
+                &lt;p&gt;${message}&lt;/p&gt;
+            `;
+
+                document.getElementById('kofi-notifications').appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
+            }
+        }
+
+        // Initialize on page load with your token
+        const kofi = new KofiWebSocket('YOUR_VERIFICATION_TOKEN');
+
+        // Handle Ko-fi events
+        document.addEventListener('onEventReceived', (event) => {
+            const data = event.detail.event;
+            let message = '';
+            console.log(data);
+            switch (event.detail.listener) {
+                case "kofi-donation-latest":
+                    message = `${data.from_name} donated ${data.amount} ${data.currency} &lt;br&gt; ${data.message}`;
+                    break;
+                case "kofi-subscription-latest":
+                    if (data.is_first_subscription_payment) {
+                        message = `${data.from_name} subscribed! &lt;br&gt; ${data.message}`;
+                    }
+                    else {
+                        message = `${data.from_name} renewed their ${data.tier_name} tier subscription!`;
+                    }
+                    break;
+                case "kofi-order-latest":
+                    message = `${data.from_name} placed a ${data.amount} ${data.currency} order, what a champ!`;
+                    break;
+                default:
+                    message = `New event from ${data.from_name}`;
+            }
+
+            kofi.showNotification(message, 'info');
+        });
+    });
+&lt;/script&gt;
+</pre>
+            </div>
+
+            <!-- ...rest of existing code... -->
+        </section>
+
+        <footer>
+            <div class="social-links">
+                <a href="https://github.com/lordlumineer">
+                    <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
+                        <path
+                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                    </svg>
+                    GitHub
+                </a>
+                <a href="https://twitter.com/lordlumineer">
+                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z" />
+                    </svg>
+                    Twitter
+                </a>
+                <a href="https://bsky.app/profile/lordlumineer.com">
+                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565C.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479c.815 2.736 3.713 3.66 6.383 3.364q.204-.03.415-.056q-.207.033-.415.056c-3.912.58-7.387 2.005-2.83 7.078c5.013 5.19 6.87-1.113 7.823-4.308c.953 3.195 2.05 9.271 7.733 4.308c4.267-4.308 1.172-6.498-2.74-7.078a9 9 0 0 1-.415-.056q.21.026.415.056c2.67.297 5.568-.628 6.383-3.364c.246-.828.624-5.79.624-6.478c0-.69-.139-1.861-.902-2.206c-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8" />
+                    </svg>
+                    Bluesky
+                </a>
+            </div>
+        </footer>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        document.querySelectorAll('.code-block').forEach(block => {
+            const pre = block.querySelector('pre');
+
+            // Set the correct protocol based on the current page
+            if (pre.textContent.includes('protocol')) {
+                const protocol = window.location.protocol;
+                pre.textContent = pre.textContent.replace('{{ WSprotocol }}', protocol.replace('http', 'ws'));
+                pre.textContent = pre.textContent.replace('{{ HTTPprotocol }}', protocol);
+            }
+
+            // Set the correct hostname based on the current page
+            if (pre.textContent.includes('HOSTNAME')) {
+                const hostname = window.location.hostname;
+                const port = window.location.port;
+                pre.textContent = pre.textContent.replace('{{ HOSTNAME }}', hostname + (port ? ':' + port : ''));
+            }
+
+            // Add copy button only to the webhook setup code block
+            if (pre.id === 'webhook-url' || pre.id === 'example-implementation') {
+                const copyButton = document.createElement('button');
+                copyButton.className = 'copy-button';
+                copyButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                `;
+
+                copyButton.addEventListener('click', async () => {
+                    const code = pre.textContent;
+                    await navigator.clipboard.writeText(code);
+
+                    copyButton.classList.add('copied');
+                    copyButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                    `;
+
+                    setTimeout(() => {
+                        copyButton.classList.remove('copied');
+                        copyButton.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        `;
+                    }, 2000);
+                });
+
+                block.appendChild(copyButton);
+            }
+
+            // Convert code blocks to use Prism.js
+            let language = 'javascript';
+            if (pre.id === 'example-implementation') language = 'html';
+            pre.className = `language-${language}`;
+            pre.innerHTML = `<code class="language-${language}">${pre.innerHTML}</code>`;
+        });
+
+        // Highlight all code blocks
+        Prism.highlightAll();
+    </script>
+</body>
+
+</html>

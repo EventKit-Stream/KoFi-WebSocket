@@ -1,0 +1,9 @@
+services:
+  api:
+    container_name: kofi-websocket
+    image: lordlumineer/kofi-websocket:latest
+    # build:
+    #   context: .
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
