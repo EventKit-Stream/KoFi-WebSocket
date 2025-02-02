@@ -51,6 +51,10 @@ async def root():
     """
     return FileResponse("static/index.html")
 
+@app.get("/favicon.ico")
+async def _favicon():
+    return FileResponse("static/favicon.svg")
+
 @app.get("/ping")
 async def _ping():
     return {"message": "pong"}

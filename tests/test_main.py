@@ -188,6 +188,13 @@ def test_root_endpoint(client):
     assert b"<!DOCTYPE html>" in response.content
 
 
+def test_favicon_endpoint(client):
+    """Test the favicon endpoint."""
+    response = client.get("/favicon.ico")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/svg+xml"
+
+
 def test_webhook_missing_verification_token(client):
     """Test webhook endpoint with missing verification token."""
     invalid_data = {
