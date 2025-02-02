@@ -337,13 +337,28 @@
         .glass-card ol li {
             margin-bottom: 0.25rem;
         }
+
+        .version-badge {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            transform: translateY(-2rem);
+            display: inline-block;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
         <header class="header glass-card">
-            <h1>Ko-Fi WebSocket Bridge</h1>
+            <h1>
+                Ko-Fi WebSocket Bridge
+                <br>
+                <div class="version-badge" id="version-badge">Loading version...</div>
+            </h1>
             <p class="description">
                 A modern, real-time bridge between Ko-fi webhooks and WebSocket connections, enabling instant
                 notifications for your Ko-fi events.
@@ -357,7 +372,7 @@
             <h2>Quick Start</h2>
             <p>Connect to the WebSocket endpoint using your verification token:</p>
             <div class="code-block">
-                <pre>{{ WSprotocol }}://{{ HOSTNAME }}/ws/{verification_token}</pre>
+                <pre>{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</pre>
             </div>
         </section>
 
@@ -396,13 +411,13 @@
             <h3>2. Set Up Ko-fi Webhook</h3>
             <p>In your Ko-fi settings, set your Webhook URL to:</p>
             <div class="code-block">
-                <pre id="webhook-url">{{ HTTPprotocol }}://{{ HOSTNAME }}/webhook</pre>
+                <pre id="webhook-url">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</pre>
             </div>
 
             <h3>3. Connect to WebSocket</h3>
             <p>Connect to the WebSocket using your verification token:</p>
             <div class="code-block">
-                <pre>const ws = new WebSocket('{{ WSprotocol }}://{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
+                <pre>const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
             </div>
 
             <h3>4. Handle Events</h3>
@@ -442,7 +457,7 @@ ws.onmessage = (event) => {
             }
 
             connect() {
-                this.ws = new WebSocket(`{{ WSprotocol }}://{{ HOSTNAME }}/ws/${this.token}`);
+                this.ws = new WebSocket(`{{ WSprotocol }}//{{ HOSTNAME }}/ws/${this.token}`);
 
                 this.ws.onopen = () => {
                     console.log('Connected to Ko-fi WebSocket');
@@ -564,6 +579,17 @@ ws.onmessage = (event) => {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
     <script>
+        // Fetch the version from the server
+        fetch('/version')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('version-badge').textContent = 'v' + data.version;
+            })
+            .catch(error => {
+                console.error('Error fetching version:', error);
+                document.getElementById('version-badge').textContent = 'Version unknown';
+            });
+
         document.querySelectorAll('.code-block').forEach(block => {
             const pre = block.querySelector('pre');
 
