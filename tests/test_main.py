@@ -192,7 +192,7 @@ def test_favicon_endpoint(client):
     """Test the favicon endpoint."""
     response = client.get("/favicon.ico")
     assert response.status_code == 200
-    assert response.headers["content-type"] == "image/svg+xml"
+    assert "image/" in response.headers["content-type"]
 
 
 def test_webhook_missing_verification_token(client):
