@@ -113,7 +113,8 @@
             align-items: center;
             justify-content: center;
             opacity: 0.7;
-            color: var(--text-primary); /* Add this line to match theme text color */
+            color: var(--text-primary);
+            /* Add this line to match theme text color */
         }
 
         .code-block:hover .copy-button {
@@ -129,12 +130,14 @@
         .copy-button svg {
             width: 16px;
             height: 16px;
-            fill: currentColor; /* This ensures the SVG inherits the button's color */
+            fill: currentColor;
+            /* This ensures the SVG inherits the button's color */
         }
 
         .copy-button.copied {
             background: rgba(128, 128, 128, 0.5);
-            color: white; /* Ensure icon is white when copied */
+            color: white;
+            /* Ensure icon is white when copied */
         }
 
         /* Override Prism styles to match our theme */
@@ -239,11 +242,16 @@
             border: 1px solid var(--glass-border);
         }
 
+        .feature-card h3 {
+            padding-top: 0;
+        }
+
         .social-links {
             display: flex;
             justify-content: center;
             gap: 2rem;
             margin-top: 2rem;
+            flex-wrap: wrap;
         }
 
         .social-links a {
@@ -335,7 +343,7 @@
 <body>
     <div class="container">
         <header class="header glass-card">
-            <h1>KoFi WebSocket Bridge</h1>
+            <h1>Ko-Fi WebSocket Bridge</h1>
             <p class="description">
                 A modern, real-time bridge between Ko-fi webhooks and WebSocket connections, enabling instant
                 notifications for your Ko-fi events.
@@ -349,7 +357,7 @@
             <h2>Quick Start</h2>
             <p>Connect to the WebSocket endpoint using your verification token:</p>
             <div class="code-block">
-                <pre>ws://{{ HOSTNAME }}//ws/{verification_token}</pre>
+                <pre>{{ WSprotocol }}://{{ HOSTNAME }}/ws/{verification_token}</pre>
             </div>
         </section>
 
@@ -372,49 +380,36 @@
             </div>
         </div>
 
-        <!-- <section class="glass-card">
-            <h2>Documentation</h2>
-            <p>Integration example:</p>
-            <div class="code-block">
-                <pre>POST /webhook
-Content-Type: application/json
-
-{
-  "data": {
-    "verification_token": "your_token",
-    "message": "Test donation"
-  }
-}</pre>
-            </div>
-        </section> -->
-
         <section class="glass-card">
             <h2>Getting Started</h2>
             <h3>1. Get Your Verification Token</h3>
             <p>To find your Ko-fi verification token:</p>
             <ol>
-                <li>Go to your <a href="https://ko-fi.com/manage" target="_blank" rel="noopener noreferrer">Ko-fi Dashboard</a></li>
-                <li>Click on "<a href="https://ko-fi.com/manage/webhook" target="_blank" rel="noopener noreferrer">API</a>" in the left menu</li>
+                <li>Go to your <a href="https://ko-fi.com/manage" target="_blank" rel="noopener noreferrer">Ko-fi
+                        Dashboard</a></li>
+                <li>Click on "<a href="https://ko-fi.com/manage/webhooks" target="_blank"
+                        rel="noopener noreferrer">API</a>" in the left menu (under "More")</li>
                 <li>Find your verification token in the "Advanced" section</li>
-                <li>Copy the token - you'll need it for the WebSocket setup</li>
+                <li>Copy the token, you'll need it for the WebSocket setup</li>
             </ol>
 
             <h3>2. Set Up Ko-fi Webhook</h3>
             <p>In your Ko-fi settings, set your Webhook URL to:</p>
             <div class="code-block">
-                <pre>https://{{ HOSTNAME }}/webhook</pre>
+                <pre id="webhook-url">{{ HTTPprotocol }}://{{ HOSTNAME }}/webhook</pre>
             </div>
 
             <h3>3. Connect to WebSocket</h3>
             <p>Connect to the WebSocket using your verification token:</p>
             <div class="code-block">
-                <pre>const ws = new WebSocket('ws://{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
+                <pre>const ws = new WebSocket('{{ WSprotocol }}://{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
             </div>
 
             <h3>4. Handle Events</h3>
             <p>Example code to handle Ko-fi notifications:</p>
             <div class="code-block">
-                <pre>ws.onmessage = (event) => {
+                <pre>
+ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     switch(data.type) {
         case "Donation":
@@ -431,97 +426,109 @@ Content-Type: application/json
             </div>
 
             <h3>Example Implementation</h3>
-            <p>Here's a complete example that connects on page load:</p>
+            <p>Here's a complete, fully functional, example that connects on page load:</p>
             <div class="code-block">
-                <pre>// Add this to your HTML
+                <pre id="example-implementation">
+&lt;!-- Add this to your HTML --&gt;
 &lt;div id="kofi-notifications"&gt;&lt;/div&gt;
 
-// Add this to your JavaScript file or &lt;script&gt; tag
-document.addEventListener('DOMContentLoaded', () => {
-    class KofiWebSocket {
-        constructor(token) {
-            this.token = token;
-            this.connect();
-        }
+&lt;!-- Add this to your JavaScript file or &lt;script&gt; tag --&gt;
+&lt;script&gt;
+    document.addEventListener('DOMContentLoaded', () => {
+        class KofiWebSocket {
+            constructor(token) {
+                this.token = token;
+                this.connect();
+            }
 
-        connect() {
-            this.ws = new WebSocket(`ws://{{ HOSTNAME }}/ws/${this.token}`);
-            
-            this.ws.onopen = () => {
-                console.log('Connected to Ko-fi WebSocket');
-                this.showNotification('Connected to Ko-fi WebSocket', 'success');
-            };
+            connect() {
+                this.ws = new WebSocket(`{{ WSprotocol }}://{{ HOSTNAME }}/ws/${this.token}`);
 
-            this.ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                
-                // Process the data
-                const eventData = {
-                    type: data.type,
-                    from: data.from_name,
-                    amount: data.amount,
-                    currency: data.currency,
-                    message: data.message || '',
-                    timestamp: data.timestamp
+                this.ws.onopen = () => {
+                    console.log('Connected to Ko-fi WebSocket');
+                    this.showNotification('Connected to Ko-fi WebSocket', 'success');
                 };
 
-                // Create and dispatch a custom event
-                const kofiEvent = new CustomEvent('onEventReceived', {
-                    detail: eventData
-                });
-                document.dispatchEvent(kofiEvent);
-            };
+                this.ws.onmessage = (event) => {
+                    // Create and dispatch a custom event
+                    const kofiEvent = new CustomEvent('onEventReceived', {
+                        detail: {
+                            event: JSON.parse(event.data)
+                        }
+                    });
+                    switch (kofiEvent.detail.event.type) {
+                        case "Donation":
+                            kofiEvent.detail.listener = "kofi-donation-latest";
+                            break;
+                        case "Subscription":
+                            kofiEvent.detail.listener = "kofi-subscription-latest";
+                            break;
+                        case "Shop Order":
+                            kofiEvent.detail.listener = "kofi-order-latest";
+                            break;
+                        default:
+                            kofiEvent.detail.listener = `kofi-${eventData.type.toLowerCase()}-latest`;
+                    }
+                    document.dispatchEvent(kofiEvent);
+                };
 
-            this.ws.onclose = () => {
-                console.log('Disconnected from Ko-fi WebSocket');
-                this.showNotification('Connection lost, reconnecting...', 'error');
-                // Reconnect after 5 seconds
-                setTimeout(() => this.connect(), 5000);
-            };
+                this.ws.onclose = () => {
+                    console.log('Disconnected from Ko-fi WebSocket');
+                    this.showNotification('Connection lost, reconnecting...', 'error');
+                    // Reconnect after 5 seconds
+                    setTimeout(() => this.connect(), 5000);
+                };
 
-            this.ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-                this.showNotification('Connection error', 'error');
-            };
-        }
+                this.ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    this.showNotification('Connection error', 'error');
+                };
+            }
 
-        showNotification(message, type = 'info') {
-            const notification = document.createElement('div');
-            notification.className = `kofi-notification ${type}`;
-            notification.innerHTML = `
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `kofi-notification ${type}`;
+                notification.innerHTML = `
                 &lt;p&gt;${message}&lt;/p&gt;
             `;
 
-            document.getElementById('kofi-notifications').appendChild(notification);
-            setTimeout(() => notification.remove(), 5000);
-        }
-    }
-
-    // Initialize on page load with your token
-    const kofi = new KofiWebSocket('YOUR_VERIFICATION_TOKEN');
-
-    // Handle Ko-fi events
-    document.addEventListener('onEventReceived', (event) => {
-        const data = event.detail;
-        let message = '';
-        
-        switch(data.type) {
-            case "Donation":
-                message = `${data.from} donated ${data.amount} ${data.currency}`;
-                break;
-            case "Subscription":
-                message = `${data.from} subscribed!`;
-                break;
-            case "Shop Order":
-                message = `${data.from} placed an order`;
-                break;
-            default:
-                message = `New event from ${data.from}`;
+                document.getElementById('kofi-notifications').appendChild(notification);
+                setTimeout(() => notification.remove(), 5000);
+            }
         }
 
-        kofi.showNotification(message, 'info');
+        // Initialize on page load with your token
+        const kofi = new KofiWebSocket('YOUR_VERIFICATION_TOKEN');
+
+        // Handle Ko-fi events
+        document.addEventListener('onEventReceived', (event) => {
+            const data = event.detail.event;
+            let message = '';
+            console.log(data);
+            switch (event.detail.listener) {
+                case "kofi-donation-latest":
+                    message = `${data.from_name} donated ${data.amount} ${data.currency} &lt;br&gt; ${data.message}`;
+                    break;
+                case "kofi-subscription-latest":
+                    if (data.is_first_subscription_payment) {
+                        message = `${data.from_name} subscribed! &lt;br&gt; ${data.message}`;
+                    }
+                    else {
+                        message = `${data.from_name} renewed their ${data.tier_name} tier subscription!`;
+                    }
+                    break;
+                case "kofi-order-latest":
+                    message = `${data.from_name} placed a ${data.amount} ${data.currency} order, what a champ!`;
+                    break;
+                default:
+                    message = `New event from ${data.from_name}`;
+            }
+
+            kofi.showNotification(message, 'info');
+        });
     });
-});</pre>
+&lt;/script&gt;
+</pre>
             </div>
 
             <!-- ...rest of existing code... -->
@@ -554,27 +561,28 @@ document.addEventListener('DOMContentLoaded', () => {
         </footer>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 
-    <!-- Update code blocks to use Prism.js -->
     <script>
-        // Convert code blocks to use Prism.js
         document.querySelectorAll('.code-block').forEach(block => {
             const pre = block.querySelector('pre');
-            let language = 'javascript';
-            if (pre.textContent.includes('POST /webhook')) {
-                language = 'json';
-            } else if (pre.textContent.includes('ws://')) {
-                language = 'javascript';
+
+            // Set the correct protocol based on the current page
+            if (pre.textContent.includes('protocol')) {
+                const protocol = window.location.protocol;
+                pre.textContent = pre.textContent.replace('{{ WSprotocol }}', protocol.replace('http', 'ws'));
+                pre.textContent = pre.textContent.replace('{{ HTTPprotocol }}', protocol);
             }
-            
-            pre.className = `language-${language}`;
-            pre.innerHTML = `<code class="language-${language}">${pre.innerHTML}</code>`;
+
+            // Set the correct hostname based on the current page
+            if (pre.textContent.includes('HOSTNAME')) {
+                const hostname = window.location.hostname;
+                const port = window.location.port;
+                pre.textContent = pre.textContent.replace('{{ HOSTNAME }}', hostname + (port ? ':' + port : ''));
+            }
 
             // Add copy button only to the webhook setup code block
-            if (pre.textContent.includes('{{ HOSTNAME }}/webhook')) {
+            if (pre.id === 'webhook-url' || pre.id === 'example-implementation') {
                 const copyButton = document.createElement('button');
                 copyButton.className = 'copy-button';
                 copyButton.innerHTML = `
@@ -582,18 +590,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
                     </svg>
                 `;
-                
+
                 copyButton.addEventListener('click', async () => {
                     const code = pre.textContent;
                     await navigator.clipboard.writeText(code);
-                    
+
                     copyButton.classList.add('copied');
                     copyButton.innerHTML = `
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
                         </svg>
                     `;
-                    
+
                     setTimeout(() => {
                         copyButton.classList.remove('copied');
                         copyButton.innerHTML = `
@@ -602,9 +610,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                     }, 2000);
                 });
-                
+
                 block.appendChild(copyButton);
             }
+
+            // Convert code blocks to use Prism.js
+            let language = 'javascript';
+            if (pre.id === 'example-implementation') language = 'html';
+            pre.className = `language-${language}`;
+            pre.innerHTML = `<code class="language-${language}">${pre.innerHTML}</code>`;
         });
 
         // Highlight all code blocks
