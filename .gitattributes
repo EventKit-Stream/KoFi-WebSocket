@@ -1,1 +1,2 @@
-static/index.html -linguist-documentation
+static/index.html linguist-documentation=true
+test_client.html linguist-documentation=true
