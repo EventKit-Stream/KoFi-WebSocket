@@ -357,7 +357,7 @@
             <h2>Quick Start</h2>
             <p>Connect to the WebSocket endpoint using your verification token:</p>
             <div class="code-block">
-                <pre>{{ WSprotocol }}://{{ HOSTNAME }}/ws/{verification_token}</pre>
+                <pre>{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</pre>
             </div>
         </section>
 
@@ -396,13 +396,13 @@
             <h3>2. Set Up Ko-fi Webhook</h3>
             <p>In your Ko-fi settings, set your Webhook URL to:</p>
             <div class="code-block">
-                <pre id="webhook-url">{{ HTTPprotocol }}://{{ HOSTNAME }}/webhook</pre>
+                <pre id="webhook-url">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</pre>
             </div>
 
             <h3>3. Connect to WebSocket</h3>
             <p>Connect to the WebSocket using your verification token:</p>
             <div class="code-block">
-                <pre>const ws = new WebSocket('{{ WSprotocol }}://{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
+                <pre>const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
             </div>
 
             <h3>4. Handle Events</h3>
@@ -442,7 +442,7 @@ ws.onmessage = (event) => {
             }
 
             connect() {
-                this.ws = new WebSocket(`{{ WSprotocol }}://{{ HOSTNAME }}/ws/${this.token}`);
+                this.ws = new WebSocket(`{{ WSprotocol }}//{{ HOSTNAME }}/ws/${this.token}`);
 
                 this.ws.onopen = () => {
                     console.log('Connected to Ko-fi WebSocket');
