@@ -187,16 +187,10 @@ def test_root_endpoint(client):
     assert response.headers["content-type"].startswith("text/html")
     assert b"<!DOCTYPE html>" in response.content
 
-
-def test_favicon_endpoint(client):
+@pytest.mark.parametrize("endpoint", ["/favicon.ico", "/logo.png", "/icon.png"])
+def test_image_endpoint(client, endpoint):
     """Test the favicon endpoint."""
-    response = client.get("/favicon.ico")
-    assert response.status_code == 200
-    assert "image/" in response.headers["content-type"]
-
-def test_SEO_image(client):
-    """Test the favicon endpoint."""
-    response = client.get("/kofi-websocket-preview.png")
+    response = client.get(endpoint)
     assert response.status_code == 200
     assert "image/" in response.headers["content-type"]
 
