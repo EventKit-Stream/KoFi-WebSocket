@@ -29,7 +29,7 @@ from starlette.middleware.cors import CORSMiddleware
 active_connections: dict[str, WebSocket] = {}
 
 app = FastAPI(
-    version="1.0.5-beta_1",
+    version="1.0.5-beta-v1",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )

@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ko-fi WebSocket Bridge</title>
+    <title>Ko-fi WebSocket</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
     <!-- SEO Meta Tags -->
     <meta name="description"
         content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
     <meta name="keywords" content="Ko-fi, WebSocket, real-time, notifications, streamer tools">
-    <meta name="author" content="EventKit-Stream">
+    <meta name="author" content="Lord Lumineer">
 
     <!-- OpenGraph Meta Tags -->
     <meta property="og:title" content="Ko-fi WebSocket Bridge">
@@ -24,7 +24,7 @@
 
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Ko-fi WebSocket Bridge">
+    <meta name="twitter:title" content="Ko-fi WebSocket">
     <meta name="twitter:description"
         content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
     <meta name="twitter:image" content="/kofi-websocket-preview.png">
@@ -581,7 +581,7 @@
     <div class="container">
         <header class="header glass-card">
             <h1>
-                Ko-fi WebSocket Bridge
+                Ko-fi WebSocket
                 <br>
                 <div class="version-badge" id="version-badge">Loading version...</div>
             </h1>
@@ -669,8 +669,7 @@
             <h3>4. Handle Events</h3>
             <p>Example code to handle Ko-fi notifications:</p>
             <div class="code-block">
-                <pre><code class="language-javascript">
-ws.onmessage = (event) => {
+                <pre><code class="language-javascript">ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     switch(data.type) {
         case "Donation":
@@ -689,8 +688,7 @@ ws.onmessage = (event) => {
             <h3>Example Implementation</h3>
             <p>Here's a complete, fully functional, example that connects on page load:</p>
             <div class="code-block">
-                <pre id="example-implementation"><code class="language-html">
-&lt;!-- Add this to your HTML --&gt;
+                <pre id="example-implementation"><code class="language-html">&lt;!-- Add this to your HTML --&gt;
 &lt;div id="kofi-notifications"&gt;&lt;/div&gt;
 
 &lt;!-- Add this to your JavaScript file or &lt;script&gt; tag --&gt;
