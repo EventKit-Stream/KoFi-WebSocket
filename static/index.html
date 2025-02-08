@@ -4,24 +4,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KoFi WebSocket</title>
+    <title>Ko-fi WebSocket Bridge</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
+    <meta name="keywords" content="Ko-fi, WebSocket, real-time, notifications, streamer tools">
+    <meta name="author" content="EventKit-Stream">
+
     <!-- OpenGraph Meta Tags -->
-    <meta property="og:title" content="Ko-fi WebSocket">
+    <meta property="og:title" content="Ko-fi WebSocket Bridge">
     <meta property="og:description"
         content="Get real-time Ko-fi notifications with WebSockets. Perfect for streamers and content creators.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url }}">
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content="en_US">
+    <meta property="og:image" content="/kofi-websocket-preview.png">
 
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ko-fi WebSocket Bridge">
+    <meta name="twitter:description"
+        content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
+    <meta name="twitter:image" content="/kofi-websocket-preview.png">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet"
-        media="(prefers-color-scheme: light)" />
+        media="(prefers-color-scheme: light)">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"
-        media="(prefers-color-scheme: dark)" />
+        media="(prefers-color-scheme: dark)">
 
     <style>
+        /* CSS Variables */
         :root {
             --primary-color: #2563eb;
             --primary-hover: #1d4ed8;
@@ -33,6 +47,9 @@
             --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
             --shadow: rgba(0, 0, 0, 0.1);
+            --success-color: #22c55e;
+            --error-color: #ef4444;
+            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
         @media (prefers-color-scheme: dark) {
@@ -48,14 +65,17 @@
             }
         }
 
-        * {
+        /* Base Styles */
+        *,
+        *::before,
+        *::after {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: var(--font-family);
             line-height: 1.6;
             background-color: var(--bg-primary);
             color: var(--text-primary);
@@ -63,12 +83,20 @@
             background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
         }
 
+        /* Container */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
 
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+        }
+
+        /* Glass Card */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
@@ -79,6 +107,7 @@
             box-shadow: 0 4px 6px var(--shadow);
         }
 
+        /* Header */
         .header {
             text-align: center;
             padding: 4rem 0;
@@ -94,11 +123,13 @@
             font-weight: 800;
         }
 
-        a {
-            color: var(--text-link);
-            text-decoration: none;
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
         }
 
+        /* Description */
         .description {
             font-size: 1.2rem;
             color: var(--text-secondary);
@@ -106,6 +137,19 @@
             margin: 0 auto;
         }
 
+        /* Links */
+        a {
+            color: var(--text-link);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: var(--primary-color);
+        }
+
+        /* Code Block */
         .code-block {
             position: relative;
             background: var(--bg-secondary);
@@ -114,6 +158,7 @@
             border: 1px solid var(--glass-border);
         }
 
+        /* Copy Button */
         .copy-button {
             position: absolute;
             top: 0.5rem;
@@ -129,7 +174,6 @@
             justify-content: center;
             opacity: 0.7;
             color: var(--text-primary);
-            /* Add this line to match theme text color */
         }
 
         .code-block:hover .copy-button {
@@ -146,30 +190,30 @@
             width: 16px;
             height: 16px;
             fill: currentColor;
-            /* This ensures the SVG inherits the button's color */
         }
 
         .copy-button.copied {
             background: rgba(128, 128, 128, 0.5);
             color: white;
-            /* Ensure icon is white when copied */
         }
 
-        /* Override Prism styles to match our theme */
+        /* Prism Styles */
         pre[class*="language-"] {
             background: transparent;
             margin: 0;
             padding: 0;
             font-size: 0.9rem;
             line-height: 1.4;
+            overflow: auto;
         }
 
         code[class*="language-"] {
             text-shadow: none;
             padding: 0;
-            white-space: pre-wrap
+            white-space: pre-wrap;
         }
 
+        /* Prism Theme Overrides */
         .token.comment,
         .token.prolog,
         .token.doctype,
@@ -225,6 +269,7 @@
             }
         }
 
+        /* Button */
         .button {
             display: inline-block;
             padding: 1rem 2rem;
@@ -236,6 +281,7 @@
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            box-shadow: 0 4px 6px var(--shadow);
         }
 
         .button:hover {
@@ -243,6 +289,7 @@
             box-shadow: 0 6px 12px var(--shadow);
         }
 
+        /* Features Grid */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -250,18 +297,26 @@
             margin: 2rem 0;
         }
 
+        /* Feature Card */
         .feature-card {
             padding: 1.5rem;
             border-radius: 12px;
             background: var(--glass-bg);
             backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px var (--shadow);
         }
 
         .feature-card h3 {
             padding-top: 0;
         }
 
+        /* Social Links */
         .social-links {
             display: flex;
             justify-content: center;
@@ -289,16 +344,7 @@
             color: white;
         }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-
-            h1 {
-                font-size: 2.5rem;
-            }
-        }
-
+        /* Ko-fi Notifications */
         #kofi-notifications {
             position: fixed;
             bottom: 20px;
@@ -318,11 +364,11 @@
         }
 
         .kofi-notification.success {
-            border-left: 4px solid #22c55e;
+            border-left: 4px solid var(--success-color);
         }
 
         .kofi-notification.error {
-            border-left: 4px solid #ef4444;
+            border-left: 4px solid var(--error-color);
         }
 
         .kofi-notification.info {
@@ -341,19 +387,25 @@
             }
         }
 
+        /* Typography */
+        h2 {
+            margin-bottom: 1rem;
+        }
+
         h3 {
             padding-top: 1.5rem;
         }
 
-        .glass-card ol {
+        ol {
             padding-left: 2rem;
             margin: 0.5rem 0;
         }
 
-        .glass-card ol li {
+        ol li {
             margin-bottom: 0.25rem;
         }
 
+        /* Version Badge */
         .version-badge {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -363,6 +415,164 @@
             color: var(--text-secondary);
             transform: translateY(-2rem);
             display: inline-block;
+        }
+
+        /* Try It Out Section */
+        .try-it-out {
+            margin-top: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .token-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .token-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .token-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            color: var(--text-secondary);
+        }
+
+        .test-button {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .test-button:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .test-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Terminal */
+        .terminal {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .terminal-header {
+            padding: 0.5rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .terminal-title {
+            font-weight: 600;
+        }
+
+        .clear-button {
+            padding: 0.25rem 0.5rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .clear-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        #terminal-output {
+            padding: 1rem;
+            min-height: 2rem;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .terminal-entry {
+            margin-bottom: 0.5rem;
+            white-space: pre-wrap;
+        }
+
+        .terminal-entry.error {
+            color: var(--error-color);
+        }
+
+        .terminal-entry.success {
+            color: var(--success-color);
+        }
+
+        .terminal-entry.data {
+            color: var(--text-primary);
+        }
+
+        /* JSON Formatting */
+        .json-key {
+            color: #7c3aed;
+        }
+
+        .json-string {
+            color: var(--success-color);
+        }
+
+        .json-number {
+            color: #3b82f6;
+        }
+
+        .json-boolean {
+            color: #f59e0b;
+        }
+
+        /* Connect Button State */
+        .test-button.connect.connected {
+            border-color: var(--primary-color);
+        }
+
+        .test-button.connect.connected:hover {
+            background: var(--primary-hover);
+            color: white;
+        }
+
+        /* Accessibility */
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0, 0, 0, 0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
         }
     </style>
 </head>
@@ -384,14 +594,6 @@
             </div>
         </header>
 
-        <section class="glass-card">
-            <h2>Quick Start</h2>
-            <p>Connect to the WebSocket endpoint using your verification token:</p>
-            <div class="code-block">
-                <pre>{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</pre>
-            </div>
-        </section>
-
         <div class="features-grid">
             <div class="feature-card">
                 <h3>Real-time Updates</h3>
@@ -412,6 +614,34 @@
         </div>
 
         <section class="glass-card">
+            <h2>Try It Out</h2>
+            <div class="try-it-out">
+                <div class="controls">
+                    <label for="test-token" class="visually-hidden">Verification Token</label>
+                    <input type="text" id="test-token" placeholder="Enter your verification token"
+                        class="token-input">
+                    <button onclick="toggleConnection()" class="test-button connect">Connect</button>
+                    <button onclick="sendTestMessage()" class="test-button send" disabled>Send Test Message</button>
+                </div>
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <span class="terminal-title">WebSocket Terminal</span>
+                        <button onclick="clearTerminal()" class="clear-button">Clear</button>
+                    </div>
+                    <div id="terminal-output"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="glass-card">
+            <h2>Quick Start</h2>
+            <p>Connect to the WebSocket endpoint using your verification token:</p>
+            <div class="code-block">
+                <pre><code class="language-javascript">{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</code></pre>
+            </div>
+        </section>
+
+        <section class="glass-card">
             <h2>Getting Started</h2>
             <h3>1. Get Your Verification Token</h3>
             <p>To find your Ko-fi verification token:</p>
@@ -427,19 +657,19 @@
             <h3>2. Set Up Ko-fi Webhook</h3>
             <p>In your Ko-fi settings, set your Webhook URL to:</p>
             <div class="code-block">
-                <pre id="webhook-url">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</pre>
+                <pre id="webhook-url"><code class="language-javascript">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</code></pre>
             </div>
 
             <h3>3. Connect to WebSocket</h3>
             <p>Connect to the WebSocket using your verification token:</p>
             <div class="code-block">
-                <pre>const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</pre>
+                <pre><code class="language-javascript">const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</code></pre>
             </div>
 
             <h3>4. Handle Events</h3>
             <p>Example code to handle Ko-fi notifications:</p>
             <div class="code-block">
-                <pre>
+                <pre><code class="language-javascript">
 ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     switch(data.type) {
@@ -453,13 +683,13 @@ ws.onmessage = (event) => {
             console.log(`New shop order from ${data.from_name}`);
             break;
     }
-};</pre>
+};</code></pre>
             </div>
 
             <h3>Example Implementation</h3>
             <p>Here's a complete, fully functional, example that connects on page load:</p>
             <div class="code-block">
-                <pre id="example-implementation">
+                <pre id="example-implementation"><code class="language-html">
 &lt;!-- Add this to your HTML --&gt;
 &lt;div id="kofi-notifications"&gt;&lt;/div&gt;
 
@@ -559,10 +789,9 @@ ws.onmessage = (event) => {
         });
     });
 &lt;/script&gt;
-</pre>
+</code></pre>
             </div>
 
-            <!-- ...rest of existing code... -->
         </section>
 
         <footer>
@@ -667,6 +896,150 @@ ws.onmessage = (event) => {
 
         // Highlight all code blocks
         Prism.highlightAll();
+
+        let testWs = null;
+
+        function formatJSON(obj) {
+            return JSON.stringify(obj, null, 2)
+                .replace(/(".*?"): /g, '<span class="json-key">$1</span>: ')
+                .replace(/: ".*?"/g, match => ': <span class="json-string">' + match.slice(2) + '</span>')
+                .replace(/: \d+/g, match => ': <span class="json-number">' + match.slice(2) + '</span>')
+                .replace(/: (true|false)/g, match => ': <span class="json-boolean">' + match.slice(2) + '</span>');
+        }
+
+        function writeToTerminal(message, type = 'data') {
+            const terminal = document.getElementById('terminal-output');
+            const entry = document.createElement('div');
+            entry.className = `terminal-entry ${type}`;
+
+            if (typeof message === 'object') {
+                if (Object.keys(message).includes('status')) {
+                    entry.textContent = "Status: " + message['status'];
+                } else {
+                    entry.innerHTML = formatJSON(message);
+                }
+            } else {
+                entry.textContent = message;
+            }
+
+            terminal.appendChild(entry);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal-output').innerHTML = '';
+        }
+
+        function updateButtons(connected) {
+            const connectButton = document.querySelector('.test-button.connect');
+            document.querySelector('.test-button.send').disabled = !connected;
+            document.querySelector('.token-input').disabled = connected;
+
+            connectButton.textContent = connected ? 'Disconnect' : 'Connect';
+            connectButton.classList.toggle('connected', connected);
+        }
+
+        function toggleConnection() {
+            if (testWs) {
+                disconnectTestSocket();
+            } else {
+                connectTestSocket();
+            }
+        }
+
+        function connectTestSocket() {
+            const token = document.getElementById('test-token').value.trim();
+            if (!token) {
+                writeToTerminal('Please enter a verification token', 'error');
+                return;
+            }
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/${token}`;
+
+            testWs = new WebSocket(wsUrl);
+
+            testWs.onopen = () => {
+                writeToTerminal('WebSocket Connected', 'success');
+                updateButtons(true);
+            };
+
+            testWs.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    writeToTerminal(data);
+                } catch {
+                    writeToTerminal(event.data, 'data');
+                }
+            };
+
+            testWs.onclose = () => {
+                writeToTerminal('WebSocket Disconnected', 'error');
+                updateButtons(false);
+                testWs = null;
+            };
+
+            testWs.onerror = (error) => {
+                writeToTerminal(`WebSocket Error: ${error.message}`, 'error');
+            };
+        }
+
+        function disconnectTestSocket() {
+            if (testWs) {
+                testWs.close();
+            }
+        }
+
+        function sendTestMessage() {
+            if (!testWs) {
+                writeToTerminal('WebSocket not connected', 'error');
+                return;
+            }
+
+            const token = document.getElementById('test-token').value.trim();
+            if (!token) {
+                writeToTerminal('Please enter a verification token', 'error');
+                return;
+            }
+
+            const baseUrl = `${window.location.protocol}//${window.location.host}`;
+
+            writeToTerminal('Sending test message...', 'data');
+
+            const webhookData = {
+                verification_token: token,
+                message_id: `test_${Date.now()}`,
+                timestamp: new Date().toISOString(),
+                type: "Donation",
+                is_public: true,
+                from_name: "Test User",
+                message: "This is a test donation!",
+                amount: "5.00",
+                url: "https://ko-fi.com/test",
+                email: "test@example.com",
+                currency: "USD",
+                is_subscription_payment: false,
+                is_first_subscription_payment: false,
+                kofi_transaction_id: `TX_${Date.now()}`,
+                shop_items: null,
+                tier_name: null,
+                shipping: null
+            };
+
+            const formData = new URLSearchParams();
+            formData.append('data', JSON.stringify(webhookData));
+
+            fetch(`${baseUrl}/webhook`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => writeToTerminal(data, 'success'))
+                .catch(error => writeToTerminal(`Error: ${error.message}`, 'error'));
+        }
     </script>
 </body>
 

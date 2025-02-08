@@ -29,7 +29,7 @@ from starlette.middleware.cors import CORSMiddleware
 active_connections: dict[str, WebSocket] = {}
 
 app = FastAPI(
-    version="1.0.4",
+    version="1.0.5-beta_1",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -54,6 +54,10 @@ async def root():
 @app.get("/favicon.ico")
 async def _favicon():
     return FileResponse("static/favicon.ico")
+
+@app.get("/kofi-websocket-preview.png")
+async def _favicon():
+    return FileResponse("static/kofi-websocket-preview.png")
 
 @app.get("/ping")
 async def _ping():

@@ -194,6 +194,12 @@ def test_favicon_endpoint(client):
     assert response.status_code == 200
     assert "image/" in response.headers["content-type"]
 
+def test_SEO_image(client):
+    """Test the favicon endpoint."""
+    response = client.get("/kofi-websocket-preview.png")
+    assert response.status_code == 200
+    assert "image/" in response.headers["content-type"]
+
 
 def test_webhook_missing_verification_token(client):
     """Test webhook endpoint with missing verification token."""
