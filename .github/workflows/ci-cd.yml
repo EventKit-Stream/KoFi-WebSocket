@@ -15,9 +15,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Check version for pre-release
-        if: github.ref == 'refs/heads/pre-release'
+        if: github.base_ref == 'pre-release'
         run: |
           validState=$(grep -oP 'version=\"\K[0-9.]+-\K['-']+' app/main.py || echo "valid")
           if [ "$validState" != "valid" ]; then
