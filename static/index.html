@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -20,656 +20,296 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url }}">
     <meta property="og:locale" content="en_US">
-    <meta property="og:image" content="/logo.png">
+    <meta property="og:image" content="{{ url }}/logo.png">
 
     <!-- Twitter Meta Tags -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Ko-fi WebSocket">
     <meta name="twitter:description"
         content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
-    <meta name="twitter:image" content="/icon.png">
+    <meta name="twitter:image" content="{{ url }}/icon.png">
 
+    <!-- TailwindCSS and DaisyUI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.2/dist/full.css" rel="stylesheet">
+
+    <!-- Prism.js -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet"
-        media="(prefers-color-scheme: light)">
+        id="prism-light">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"
-        media="(prefers-color-scheme: dark)">
+        id="prism-dark">
+
+    <!-- JSON Formatter -->
+    <script src="https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.umd.min.js"></script>
+
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {}
+            },
+            daisyui: {
+                themes: ["light", "dark"]
+            }
+        }
+    </script>
 
     <style>
-        /* CSS Variables */
-        :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --text-link: hsl(221, 83%, 25%);
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --shadow: rgba(0, 0, 0, 0.1);
-            --success-color: #22c55e;
-            --error-color: #ef4444;
-            --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        .code-block pre {
+            border-radius: 0.5rem;
+            text-overflow: ellipsis;
         }
 
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --glass-bg: rgba(0, 0, 0, 0.2);
-                --glass-border: rgba(255, 255, 255, 0.1);
-                --text-primary: #e2e8f0;
-                --text-secondary: #94a3b8;
-                --text-link: hsl(221, 83%, 75%);
-                --bg-primary: #0f172a;
-                --bg-secondary: #1e293b;
-                --shadow: rgba(0, 0, 0, 0.3);
-            }
-        }
-
-        /* Base Styles */
-        *,
-        *::before,
-        *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-family);
-            line-height: 1.6;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
-        }
-
-        /* Container */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-        }
-
-        /* Glass Card */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 6px var(--shadow);
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            padding: 4rem 0;
-        }
-
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 800;
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-        }
-
-        /* Description */
-        .description {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        /* Links */
-        a {
-            color: var(--text-link);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        a:hover {
-            text-decoration: underline;
-            color: var(--primary-color);
-        }
-
-        /* Code Block */
-        .code-block {
-            position: relative;
-            background: var(--bg-secondary);
-            padding: 1rem;
-            border-radius: 8px;
-            border: 1px solid var(--glass-border);
-        }
-
-        /* Copy Button */
-        .copy-button {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            padding: 0.5rem;
-            background: var(--glass-bg);
-            border: 1px solid var(--text-secondary);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.7;
-            color: var(--text-primary);
-        }
-
-        .code-block:hover .copy-button {
-            opacity: 1;
-        }
-
-        .copy-button:hover {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transform: translateY(-1px);
-        }
-
-        .copy-button svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-        }
-
-        .copy-button.copied {
-            background: rgba(128, 128, 128, 0.5);
-            color: white;
-        }
-
-        /* Prism Styles */
-        pre[class*="language-"] {
-            background: transparent;
-            margin: 0;
-            padding: 0;
-            font-size: 0.9rem;
-            line-height: 1.4;
+        /*
             overflow: auto;
         }
 
         code[class*="language-"] {
-            text-shadow: none;
-            padding: 0;
             white-space: pre-wrap;
         }
-
-        /* Prism Theme Overrides */
-        .token.comment,
-        .token.prolog,
-        .token.doctype,
-        .token.cdata {
-            color: #8b9cb3;
+        */
+        .code-block {
+            position: relative;
         }
 
-        .token.punctuation {
-            color: #93a4c4;
-        }
-
-        .token.property,
-        .token.keyword,
-        .token.tag {
-            color: #c792ea;
-        }
-
-        .token.class-name {
-            color: #ffcb6b;
-        }
-
-        .token.string,
-        .token.attr-value {
-            color: #c3e88d;
-        }
-
-        @media (prefers-color-scheme: light) {
-
-            .token.comment,
-            .token.prolog,
-            .token.doctype,
-            .token.cdata {
-                color: #637777;
-            }
-
-            .token.punctuation {
-                color: #4a5568;
-            }
-
-            .token.property,
-            .token.keyword,
-            .token.tag {
-                color: #805ad5;
-            }
-
-            .token.class-name {
-                color: #c2410c;
-            }
-
-            .token.string,
-            .token.attr-value {
-                color: #059669;
-            }
-        }
-
-        /* Button */
-        .button {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: linear-gradient(135deg, var(--primary-color), #7c3aed);
-            color: white;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
+        .copy-button {
+            position: absolute;
+            margin-top: 0.5rem;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem;
+            background: transparent;
             border: none;
             cursor: pointer;
-            box-shadow: 0 4px 6px var(--shadow);
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px var(--shadow);
-        }
-
-        /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
-        }
-
-        /* Feature Card */
-        .feature-card {
-            padding: 1.5rem;
-            border-radius: 12px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px var (--shadow);
-        }
-
-        .feature-card h3 {
-            padding-top: 0;
-        }
-
-        /* Social Links */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .social-links a {
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-        }
-
-        .social-links a:hover {
-            transform: translateY(-2px);
-            background: var(--primary-color);
-            color: white;
-        }
-
-        /* Ko-fi Notifications */
-        #kofi-notifications {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .kofi-notification {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 10px;
-            animation: slideIn 0.3s ease-out;
-            color: var(--text-primary);
-        }
-
-        .kofi-notification.success {
-            border-left: 4px solid var(--success-color);
-        }
-
-        .kofi-notification.error {
-            border-left: 4px solid var(--error-color);
-        }
-
-        .kofi-notification.info {
-            border-left: 4px solid var(--primary-color);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        /* Typography */
-        h2 {
-            margin-bottom: 1rem;
-        }
-
-        h3 {
-            padding-top: 1.5rem;
-        }
-
-        ol {
-            padding-left: 2rem;
-            margin: 0.5rem 0;
-        }
-
-        ol li {
-            margin-bottom: 0.25rem;
-        }
-
-        /* Version Badge */
-        .version-badge {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            transform: translateY(-2rem);
-            display: inline-block;
-        }
-
-        /* Try It Out Section */
-        .try-it-out {
-            margin-top: 1rem;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .token-input {
-            flex: 1;
-            min-width: 200px;
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .token-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .token-input:disabled {
             opacity: 0.6;
-            cursor: not-allowed;
-            color: var(--text-secondary);
+            transition: opacity 0.2s;
         }
 
-        .test-button {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .copy-button:hover {
+            opacity: 1;
         }
 
-        .test-button:hover:not(:disabled) {
-            background: var(--primary-color);
-            color: white;
+        .copy-button svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: currentColor;
         }
 
-        .test-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .copy-button.copied svg {
+            fill: #4ade80;
         }
 
-        /* Terminal */
-        .terminal {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            overflow: hidden;
+        /* JSON Editor styles */
+        .jsoneditor {
+            border: none !important;
+            min-height: 200px;
         }
 
-        .terminal-header {
-            padding: 0.5rem 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .terminal-entry .jsoneditor {
+            background-color: transparent;
         }
 
-        .terminal-title {
-            font-weight: 600;
+        .terminal-entry .jsoneditor-menu {
+            display: none;
         }
 
-        .clear-button {
-            padding: 0.25rem 0.5rem;
-            border: 1px solid var(--glass-border);
-            border-radius: 4px;
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            cursor: pointer;
+        [data-theme="dark"] .jsoneditor {
+            --jse-theme-color: #2a2a2a;
+            --jse-theme-color-highlight: #3a3a3a;
+        }
+
+        [data-theme="light"] .jsoneditor {
+            --jse-theme-color: #f5f5f5;
+            --jse-theme-color-highlight: #e5e5e5;
+        }
+
+        /* JSON Formatter theme customization */
+        /*[data-theme="dark"] .json-formatter-row {
+            --json-formatter-color: #e0e0e0;
+            --json-formatter-str-color: #89ddf3;
+            --json-formatter-num-color: #efb27c;
+            --json-formatter-bool-color: #ef9a9a;
+            --json-formatter-null-color: #b39ddb;
+            --json-formatter-bracket-color: #8c8c8c;
+            --json-formatter-key-color: #80cbc4;
+        }
+
+        [data-theme="light"] .json-formatter-row {
+            --json-formatter-color: #2a2a2a;
+            --json-formatter-str-color: #0277bd;
+            --json-formatter-num-color: #e65100;
+            --json-formatter-bool-color: #b71c1c;
+            --json-formatter-null-color: #4527a0;
+            --json-formatter-bracket-color: #616161;
+            --json-formatter-key-color: #00695c;
+        }
+
+        .json-formatter-row {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
             font-size: 0.875rem;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            line-height: 1.25rem;
         }
 
-        .clear-button:hover {
-            background-color: var(--primary-color);
-            color: white;
+        .json-formatter-row .json-formatter-string {
+            color: var(--json-formatter-str-color);
         }
 
-        #terminal-output {
-            padding: 1rem;
-            min-height: 2rem;
-            max-height: 500px;
-            overflow-y: auto;
-            font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.9rem;
-            line-height: 1.4;
+        .json-formatter-row .json-formatter-number {
+            color: var(--json-formatter-num-color);
         }
 
-        .terminal-entry {
-            margin-bottom: 0.5rem;
-            white-space: pre-wrap;
+        .json-formatter-row .json-formatter-boolean {
+            color: var(--json-formatter-bool-color);
         }
 
-        .terminal-entry.error {
-            color: var(--error-color);
+        .json-formatter-row .json-formatter-null {
+            color: var(--json-formatter-null-color);
         }
 
-        .terminal-entry.success {
-            color: var(--success-color);
+        .json-formatter-row .json-formatter-bracket {
+            color: var(--json-formatter-bracket-color);
         }
 
-        .terminal-entry.data {
-            color: var(--text-primary);
+        .json-formatter-row .json-formatter-key {
+            color: var(--json-formatter-key-color);
+            padding-right: 0.5em;
         }
 
-        /* JSON Formatting */
-        .json-key {
-            color: #7c3aed;
+        .json-formatter-row,
+        .json-formatter-row a {
+            color: var(--json-formatter-color);
         }
 
-        .json-string {
-            color: var(--success-color);
+        .json-formatter-row .json-formatter-toggler {
+            opacity: 0.6;
+            margin-right: 0.5em;
         }
 
-        .json-number {
-            color: #3b82f6;
+        .json-formatter-row .json-formatter-toggler:after {
+            content: "►";
         }
 
-        .json-boolean {
-            color: #f59e0b;
+        .json-formatter-row.json-formatter-open > .json-formatter-toggler:after {
+            content: "▼";
         }
 
-        /* Connect Button State */
-        .test-button.connect.connected {
-            border-color: var(--primary-color);
-        }
-
-        .test-button.connect.connected:hover {
-            background: var(--primary-hover);
-            color: white;
-        }
-
-        /* Accessibility */
-        .visually-hidden {
-            position: absolute !important;
-            width: 1px !important;
-            height: 1px !important;
-            padding: 0 !important;
-            margin: -1px !important;
-            overflow: hidden !important;
-            clip: rect(0, 0, 0, 0) !important;
-            white-space: nowrap !important;
-            border: 0 !important;
-        }
+        .json-formatter-row .json-formatter-toggler:hover {
+            opacity: 1;
+        }*/
     </style>
 </head>
 
-<body>
-    <div class="container">
-        <header class="header glass-card">
-            <h1>
-                Ko-fi WebSocket
-                <br>
-                <div class="version-badge" id="version-badge">Loading version...</div>
-            </h1>
-            <p class="description">
-                A modern, real-time bridge between Ko-fi webhooks and WebSocket connections, enabling instant
-                notifications for your Ko-fi events.
-            </p>
-            <div style="margin-top: 2rem;">
-                <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" class="button">View on GitHub</a>
+<body class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+    <div class="container mx-auto px-4 py-8">
+        <div class="fixed top-4 right-4 z-50">
+            <button id="theme-toggle" class="btn btn-circle btn-ghost">
+                <!-- sun icon -->
+                <svg id="sun-icon" class="h-6 w-6 fill-current hidden" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
+                </svg>
+                <!-- moon icon -->
+                <svg id="moon-icon" class="h-6 w-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path
+                        d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
+                </svg>
+            </button>
+        </div>
+
+        <header id="header" class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body text-center">
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    Ko-fi WebSocket
+                </h1>
+                <div class="inline-flex justify-center">
+                    <div id="version-badge" class="bg-gradient-to-r from-primary/10 to-secondary/10 border-2 border-primary/20 
+                                px-3 py-1 rounded-full text-sm font-medium mt-2 backdrop-blur-sm
+                                shadow-lg shadow-primary/5 whitespace-nowrap">
+                        Loading...
+                    </div>
+                </div>
+                <p class="text-xl text-base-content/70 max-w-2xl mx-auto mt-4">
+                    A modern, real-time bridge between Ko-fi webhooks and WebSocket connections, enabling instant
+                    notifications for your Ko-fi events.
+                </p>
+                <div class="mt-8">
+                    <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" class="btn btn-primary">View on
+                        GitHub</a>
+                </div>
             </div>
         </header>
 
-        <div class="features-grid">
-            <div class="feature-card">
-                <h3>Real-time Updates</h3>
-                <p>Instant notification delivery via WebSocket connections</p>
-            </div>
-            <div class="feature-card">
-                <h3>Secure</h3>
-                <p>Token-based authentication for secure communications</p>
-            </div>
-            <div class="feature-card">
-                <h3>Universal Support</h3>
-                <p>Compatible with all Ko-fi event types</p>
-            </div>
-            <div class="feature-card">
-                <h3>Easy Integration</h3>
-                <p>Simple to integrate with any WebSocket client</p>
-            </div>
-        </div>
-
-        <section class="glass-card">
-            <h2>Try It Out</h2>
-            <div class="try-it-out">
-                <div class="controls">
-                    <label for="test-token" class="visually-hidden">Verification Token</label>
-                    <input type="text" id="test-token" placeholder="Enter your verification token"
-                        class="token-input">
-                    <button onclick="toggleConnection()" class="test-button connect">Connect</button>
-                    <button onclick="sendTestMessage()" class="test-button send" disabled>Send Test Message</button>
+        <section id="features" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title">Real-time Updates</h3>
+                    <p>Instant notification delivery via WebSocket connections</p>
                 </div>
-                <div class="terminal">
-                    <div class="terminal-header">
-                        <span class="terminal-title">WebSocket Terminal</span>
-                        <button onclick="clearTerminal()" class="clear-button">Clear</button>
-                    </div>
-                    <div id="terminal-output"></div>
+            </div>
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title">Secure</h3>
+                    <p>Token-based authentication for secure communications</p>
+                </div>
+            </div>
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title">Universal Support</h3>
+                    <p>Compatible with all Ko-fi event types</p>
+                </div>
+            </div>
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body">
+                    <h3 class="card-title">Easy Integration</h3>
+                    <p>Simple to integrate with any WebSocket client</p>
                 </div>
             </div>
         </section>
 
-        <section class="glass-card">
-            <h2>Quick Start</h2>
-            <p>Connect to the WebSocket endpoint using your verification token:</p>
-            <div class="code-block">
-                <pre><code class="language-javascript">{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</code></pre>
+        <!-- Remove the try-it-out section from here -->
+
+        <section id="quick-start" class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title">Quick Start</h2>
+                <p>Connect to the WebSocket endpoint using your verification token:</p>
+                <div class="code-block">
+                    <pre><code class="language-javascript">{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</code></pre>
+                </div>
             </div>
         </section>
 
-        <section class="glass-card">
-            <h2>Getting Started</h2>
-            <h3>1. Get Your Verification Token</h3>
-            <p>To find your Ko-fi verification token:</p>
-            <ol>
-                <li>Go to your <a href="https://ko-fi.com/manage" target="_blank" rel="noopener noreferrer">Ko-fi
-                        Dashboard</a></li>
-                <li>Click on "<a href="https://ko-fi.com/manage/webhooks" target="_blank"
-                        rel="noopener noreferrer">API</a>" in the left menu (under "More")</li>
-                <li>Find your verification token in the "Advanced" section</li>
-                <li>Copy the token, you'll need it for the WebSocket setup</li>
-            </ol>
+        <section id="getting-started" class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title">Getting Started</h2>
+                <h3>1. Get Your Verification Token</h3>
+                <p>To find your Ko-fi verification token:</p>
+                <ol>
+                    <li>Go to your <a href="https://ko-fi.com/manage" target="_blank" rel="noopener noreferrer">Ko-fi
+                            Dashboard</a></li>
+                    <li>Click on "<a href="https://ko-fi.com/manage/webhooks" target="_blank"
+                            rel="noopener noreferrer">API</a>" in the left menu (under "More")</li>
+                    <li>Find your verification token in the "Advanced" section</li>
+                    <li>Copy the token, you'll need it for the WebSocket setup</li>
+                </ol>
 
-            <h3>2. Set Up Ko-fi Webhook</h3>
-            <p>In your Ko-fi settings, set your Webhook URL to:</p>
-            <div class="code-block">
-                <pre id="webhook-url"><code class="language-javascript">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</code></pre>
-            </div>
+                <h3>2. Set Up Ko-fi Webhook</h3>
+                <p>In your Ko-fi settings, set your Webhook URL to:</p>
+                <div class="code-block">
+                    <pre
+                        id="webhook-url"><code class="language-javascript">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</code></pre>
+                </div>
 
-            <h3>3. Connect to WebSocket</h3>
-            <p>Connect to the WebSocket using your verification token:</p>
-            <div class="code-block">
-                <pre><code class="language-javascript">const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</code></pre>
-            </div>
+                <h3>3. Connect to WebSocket</h3>
+                <p>Connect to the WebSocket using your verification token:</p>
+                <div class="code-block">
+                    <pre><code class="language-javascript">const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</code></pre>
+                </div>
 
-            <h3>4. Handle Events</h3>
-            <p>Example code to handle Ko-fi notifications:</p>
-            <div class="code-block">
-                <pre><code class="language-javascript">ws.onmessage = (event) => {
+                <h3>4. Handle Events</h3>
+                <p>Example code to handle Ko-fi notifications:</p>
+                <div class="code-block">
+                    <pre><code class="language-javascript">ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     switch(data.type) {
         case "Donation":
@@ -682,13 +322,14 @@
             console.log(`New shop order from ${data.from_name}`);
             break;
     }
-};</code></pre>
-            </div>
+};
+</code></pre>
+                </div>
 
-            <h3>Example Implementation</h3>
-            <p>Here's a complete, fully functional, example that connects on page load:</p>
-            <div class="code-block">
-                <pre id="example-implementation"><code class="language-html">&lt;!-- Add this to your HTML --&gt;
+                <h3>Example Implementation</h3>
+                <p>Here's a complete, fully functional, example that connects on page load:</p>
+                <div class="code-block">
+                    <pre id="example-implementation"><code class="language-html">&lt;!-- Add this to your HTML --&gt;
 &lt;div id="kofi-notifications"&gt;&lt;/div&gt;
 
 &lt;!-- Add this to your JavaScript file or &lt;script&gt; tag --&gt;
@@ -788,257 +429,124 @@
     });
 &lt;/script&gt;
 </code></pre>
+                </div>
             </div>
-
         </section>
 
-        <footer>
-            <div class="social-links">
-                <a href="https://github.com/lordlumineer">
-                    <svg height="24" width="24" viewBox="0 0 16 16" fill="currentColor">
-                        <path
-                            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+        <!-- Replace the navigation section -->
+        <div class="fixed top-1/2 left-4 -translate-y-1/2 hidden lg:flex items-stretch gap-4">
+            <!-- Progress bar aligned with nav height -->
+            <div class="relative w-1 self-stretch">
+                <div class="absolute inset-0 bg-base-300 rounded-full"></div>
+                <div id="scroll-progress"
+                    class="absolute top-0 left-0 w-full bg-primary rounded-full transition-all duration-200"
+                    style="height: 0%">
+                </div>
+            </div>
+
+            <!-- Navigation menu -->
+            <div class="card bg-base-100 shadow-xl">
+                <div class="card-body p-4">
+                    <nav class="space-y-2">
+                        <a href="#header" class="block hover:text-primary transition-colors">Header</a>
+                        <a href="#features" class="block hover:text-primary transition-colors">Features</a>
+                        <a href="#quick-start" class="block hover:text-primary transition-colors">Quick Start</a>
+                        <a href="#getting-started" class="block hover:text-primary transition-colors">Getting
+                            Started</a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-16 mb-8">
+            <div class="flex justify-center gap-4 flex-wrap">
+                <a href="https://github.com/lordlumineer" 
+                   class="btn btn-outline gap-2 hover:scale-105 transition-transform">
+                    <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
                     </svg>
                     GitHub
                 </a>
-                <a href="https://twitter.com/lordlumineer">
-                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z" />
+                <a href="https://twitter.com/lordlumineer" 
+                   class="btn btn-outline btn-info gap-2 hover:scale-105 transition-transform">
+                    <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"/>
                     </svg>
                     Twitter
                 </a>
-                <a href="https://bsky.app/profile/lordlumineer.com">
-                    <svg height="24" width="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565C.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479c.815 2.736 3.713 3.66 6.383 3.364q.204-.03.415-.056q-.207.033-.415.056c-3.912.58-7.387 2.005-2.83 7.078c5.013 5.19 6.87-1.113 7.823-4.308c.953 3.195 2.05 9.271 7.733 4.308c4.267-4.308 1.172-6.498-2.74-7.078a9 9 0 0 1-.415-.056q.21.026.415.056c2.67.297 5.568-.628 6.383-3.364c.246-.828.624-5.79.624-6.478c0-.69-.139-1.861-.902-2.206c-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8" />
+                <a href="https://bsky.app/profile/lordlumineer.com" 
+                   class="btn btn-outline btn-primary gap-2 hover:scale-105 transition-transform">
+                    <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565C.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479c.815 2.736 3.713 3.66 6.383 3.364q.204-.03.415-.056q-.207.033-.415.056c-3.912.58-7.387 2.005-2.83 7.078c5.013 5.19 6.87-1.113 7.823-4.308c.953 3.195 2.05 9.271 7.733 4.308c4.267-4.308 1.172-6.498-2.74-7.078a9 9 0 0 1-.415-.056q.21.026.415.056c2.67.297 5.568-.628 6.383-3.364c.246-.828.624-5.79.624-6.478c0-.69-.139-1.861-.902-2.206c-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8"/>
                     </svg>
                     Bluesky
                 </a>
             </div>
+            <div class="text-center mt-4 text-sm text-base-content/60">
+                Made with ❤️ by <a href="https://github.com/LordLumineer" class="hover:text-primary">Lord Lumineer</a> | <a href="https://github.com/EventKit-Stream" class="hover:text-primary">EventKit-Stream</a>
+                <div class="mt-2">
+                    Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" class="hover:text-primary">Apache License 2.0</a>
+                </div>
+            </div>
         </footer>
-    </div>
+
+        <!-- Replace the floating button with improved labeled version -->
+        <div class="fixed bottom-4 right-4 z-50 flex items-center gap-2">
+            <span class="hidden md:block text-sm font-medium bg-base-100 py-1 px-2 rounded-lg shadow-lg">
+                Try it out
+            </span>
+            <button onclick="window.try_it_modal.showModal()"
+                class="btn btn-sm btn-circle btn-primary shadow-lg hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </button>
+        </div>
+
+    <!-- Keep the existing modal dialog -->
+    <dialog id="try_it_modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box w-11/12 max-w-5xl">
+            <!-- Close button -->
+            <form method="dialog" class="absolute right-2 top-2">
+                <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+            </form>
+
+            <!-- Try It Out content -->
+            <h2 class="font-bold text-lg mb-4">Try It Out</h2>
+            <div class="space-y-4">
+                <div class="flex flex-wrap gap-4">
+                    <input type="text" id="token-input" placeholder="Enter your verification token"
+                        class="input input-bordered flex-1">
+                    <button id="connect-button" class="btn btn-primary" onclick="toggleConnection()">Connect</button>
+                    <button id="send-test-button" class="btn btn-accent" disabled onclick="sendTestMessage()">Send Test
+                        Message</button>
+                </div>
+
+                <div class="card bg-neutral text-neutral-content">
+                    <div class="card-body p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold">WebSocket Terminal</span>
+                            <button id="clear-messages-button" class="btn btn-sm btn-ghost"
+                                onclick="clearTerminal()">Clear</button>
+                        </div>
+                        <div id="terminal" class="font-mono text-sm h-64 overflow-y-auto space-y-2"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-
-    <script>
-        // Fetch the version from the server
-        fetch('/version')
-            .then(response => response.json())
-            .then(data => {
-                const version = 'v' + data.version;
-                document.getElementById('version-badge').textContent = version;
-            })
-            .catch(error => {
-                console.error('Error fetching version:', error);
-                document.getElementById('version-badge').textContent = 'Version unknown';
-            });
-
-        document.querySelectorAll('.code-block').forEach(block => {
-            const pre = block.querySelector('pre');
-
-            // Set the correct protocol based on the current page
-            if (pre.textContent.includes('protocol')) {
-                const protocol = window.location.protocol;
-                pre.textContent = pre.textContent.replace('{{ WSprotocol }}', protocol.replace('http', 'ws'));
-                pre.textContent = pre.textContent.replace('{{ HTTPprotocol }}', protocol);
-            }
-
-            // Set the correct hostname based on the current page
-            if (pre.textContent.includes('HOSTNAME')) {
-                const hostname = window.location.hostname;
-                const port = window.location.port;
-                pre.textContent = pre.textContent.replace('{{ HOSTNAME }}', hostname + (port ? ':' + port : ''));
-            }
-
-            // Add copy button only to the webhook setup code block
-            if (pre.id === 'webhook-url' || pre.id === 'example-implementation') {
-                const copyButton = document.createElement('button');
-                copyButton.className = 'copy-button';
-                copyButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                    </svg>
-                `;
-
-                copyButton.addEventListener('click', async () => {
-                    const code = pre.textContent;
-                    await navigator.clipboard.writeText(code);
-
-                    copyButton.classList.add('copied');
-                    copyButton.innerHTML = `
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                        </svg>
-                    `;
-
-                    setTimeout(() => {
-                        copyButton.classList.remove('copied');
-                        copyButton.innerHTML = `
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-                        `;
-                    }, 2000);
-                });
-
-                block.appendChild(copyButton);
-            }
-
-            // Convert code blocks to use Prism.js
-            let language = 'javascript';
-            if (pre.id === 'example-implementation') language = 'html';
-            pre.className = `language-${language}`;
-            pre.innerHTML = `<code class="language-${language}">${pre.innerHTML}</code>`;
-        });
-
-        // Highlight all code blocks
-        Prism.highlightAll();
-
-        let testWs = null;
-
-        function formatJSON(obj) {
-            return JSON.stringify(obj, null, 2)
-                .replace(/(".*?"): /g, '<span class="json-key">$1</span>: ')
-                .replace(/: ".*?"/g, match => ': <span class="json-string">' + match.slice(2) + '</span>')
-                .replace(/: \d+/g, match => ': <span class="json-number">' + match.slice(2) + '</span>')
-                .replace(/: (true|false)/g, match => ': <span class="json-boolean">' + match.slice(2) + '</span>');
-        }
-
-        function writeToTerminal(message, type = 'data') {
-            const terminal = document.getElementById('terminal-output');
-            const entry = document.createElement('div');
-            entry.className = `terminal-entry ${type}`;
-
-            if (typeof message === 'object') {
-                if (Object.keys(message).includes('status')) {
-                    entry.textContent = "Status: " + message['status'];
-                } else {
-                    entry.innerHTML = formatJSON(message);
-                }
-            } else {
-                entry.textContent = message;
-            }
-
-            terminal.appendChild(entry);
-            terminal.scrollTop = terminal.scrollHeight;
-        }
-
-        function clearTerminal() {
-            document.getElementById('terminal-output').innerHTML = '';
-        }
-
-        function updateButtons(connected) {
-            const connectButton = document.querySelector('.test-button.connect');
-            document.querySelector('.test-button.send').disabled = !connected;
-            document.querySelector('.token-input').disabled = connected;
-
-            connectButton.textContent = connected ? 'Disconnect' : 'Connect';
-            connectButton.classList.toggle('connected', connected);
-        }
-
-        function toggleConnection() {
-            if (testWs) {
-                disconnectTestSocket();
-            } else {
-                connectTestSocket();
-            }
-        }
-
-        function connectTestSocket() {
-            const token = document.getElementById('test-token').value.trim();
-            if (!token) {
-                writeToTerminal('Please enter a verification token', 'error');
-                return;
-            }
-
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws/${token}`;
-
-            testWs = new WebSocket(wsUrl);
-
-            testWs.onopen = () => {
-                writeToTerminal('WebSocket Connected', 'success');
-                updateButtons(true);
-            };
-
-            testWs.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    writeToTerminal(data);
-                } catch {
-                    writeToTerminal(event.data, 'data');
-                }
-            };
-
-            testWs.onclose = () => {
-                writeToTerminal('WebSocket Disconnected', 'error');
-                updateButtons(false);
-                testWs = null;
-            };
-
-            testWs.onerror = (error) => {
-                writeToTerminal(`WebSocket Error: ${error.message}`, 'error');
-            };
-        }
-
-        function disconnectTestSocket() {
-            if (testWs) {
-                testWs.close();
-            }
-        }
-
-        function sendTestMessage() {
-            if (!testWs) {
-                writeToTerminal('WebSocket not connected', 'error');
-                return;
-            }
-
-            const token = document.getElementById('test-token').value.trim();
-            if (!token) {
-                writeToTerminal('Please enter a verification token', 'error');
-                return;
-            }
-
-            const baseUrl = `${window.location.protocol}//${window.location.host}`;
-
-            writeToTerminal('Sending test message...', 'data');
-
-            const webhookData = {
-                verification_token: token,
-                message_id: `test_${Date.now()}`,
-                timestamp: new Date().toISOString(),
-                type: "Donation",
-                is_public: true,
-                from_name: "Test User",
-                message: "This is a test donation!",
-                amount: "5.00",
-                url: "https://ko-fi.com/test",
-                email: "test@example.com",
-                currency: "USD",
-                is_subscription_payment: false,
-                is_first_subscription_payment: false,
-                kofi_transaction_id: `TX_${Date.now()}`,
-                shop_items: null,
-                tier_name: null,
-                shipping: null
-            };
-
-            const formData = new URLSearchParams();
-            formData.append('data', JSON.stringify(webhookData));
-
-            fetch(`${baseUrl}/webhook`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => writeToTerminal(data, 'success'))
-                .catch(error => writeToTerminal(`Error: ${error.message}`, 'error'));
-        }
-    </script>
+    <!-- Load JSONEditor before your main script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>

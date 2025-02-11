@@ -22,14 +22,15 @@ https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-
 import asyncio
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Form
-from fastapi.responses import FileResponse, HTMLResponse
+# from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.exceptions import HTTPException
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 active_connections: dict[str, WebSocket] = {}
 
 app = FastAPI(
-    version="1.0.5-beta-v3",
+    version="1.1.0-beta-v1",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -43,25 +44,25 @@ app.add_middleware(
 )
 
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    """
-    Returns the home page of the application, which explains the purpose
-    and functionalities of the Ko-fi WebSocket bridge.
-    """
-    return FileResponse("static/index.html")
+# @app.get("/", response_class=HTMLResponse)
+# async def root():
+#     """
+#     Returns the home page of the application, which explains the purpose
+#     and functionalities of the Ko-fi WebSocket bridge.
+#     """
+#     return FileResponse("static/index.html")
 
-@app.get("/favicon.ico")
-async def _favicon():
-    return FileResponse("static/favicon.ico")
+# @app.get("/favicon.ico")
+# async def _favicon():
+#     return FileResponse("static/favicon.ico")
 
-@app.get("/logo.png")
-async def _logo():
-    return FileResponse("static/kofi-websocket-logo.png")
+# @app.get("/logo.png")
+# async def _logo():
+#     return FileResponse("static/kofi-websocket-logo.png")
 
-@app.get("/icon.png")
-async def _icon():
-    return FileResponse("static/kofi-websocket-icon.png")
+# @app.get("/icon.png")
+# async def _icon():
+#     return FileResponse("static/kofi-websocket-icon.png")
 
 @app.get("/ping")
 async def _ping():
@@ -135,3 +136,6 @@ async def websocket_endpoint(websocket: WebSocket, verification_token: str):
     except WebSocketDisconnect:
         if verification_token in active_connections:
             del active_connections[verification_token]
+
+# Keep it at the end to prevent routing issues
+app.mount("/", StaticFiles(directory="static",html = True), name="static")
