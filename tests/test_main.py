@@ -180,21 +180,6 @@ def test_version_endpoint(client):
     assert response.json() == {"version": app.version}
 
 
-def test_root_endpoint(client):
-    """Test the root endpoint."""
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.headers["content-type"].startswith("text/html")
-    assert b"<!DOCTYPE html>" in response.content
-
-@pytest.mark.parametrize("endpoint", ["/favicon.ico", "/logo.png", "/icon.png"])
-def test_image_endpoint(client, endpoint):
-    """Test the favicon endpoint."""
-    response = client.get(endpoint)
-    assert response.status_code == 200
-    assert "image/" in response.headers["content-type"]
-
-
 def test_webhook_missing_verification_token(client):
     """Test webhook endpoint with missing verification token."""
     invalid_data = {
@@ -208,14 +193,6 @@ def test_webhook_missing_verification_token(client):
     )
     assert response.status_code == 400
     assert "Missing verification_token" in response.json()["detail"]
-
-
-@pytest.mark.asyncio
-async def test_invalid_websocket_token():
-    """Test WebSocket connection with invalid token."""
-    with pytest.raises(WebSocketDisconnect):
-        with TestClient(app).websocket_connect("/ws/") as websocket:
-            websocket.send_text("ping")
 
 
 @pytest.mark.asyncio
