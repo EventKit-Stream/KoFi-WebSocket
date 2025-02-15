@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes in 1.1.0
 
+- You can now have multiple websockets connected with the same token, without having the other connection not receiving the messages
+
 - You can try the service directly from the homepage now
   - The button to display the try it out section is located at the bottom right of the page (and is always visible)
 - Addition of a navigation panel to quickly jump to the different sections of the homepage
@@ -21,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Json Formatter (to format the json in the try it out section)
 - General refactoring of the homepage
 
-- Reduced the endpoints by directly mounting the static files in the server
+- Reduced the amount of endpoints by directly mounting the static files in the server
 
 ## [1.0.4] - 2025-02-02
 

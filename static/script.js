@@ -32,9 +32,7 @@ document.querySelectorAll('.code-block').forEach(block => {
         const copyButton = document.createElement('button');
         copyButton.className = 'copy-button';
         copyButton.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-            </svg>
+            <iconify-icon icon="tabler:copy-plus" width="24" height="24" fill="currentColor"></iconify-icon>
         `;
 
         copyButton.addEventListener('click', async () => {
@@ -43,16 +41,13 @@ document.querySelectorAll('.code-block').forEach(block => {
 
             copyButton.classList.add('copied');
             copyButton.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                </svg>
+                <iconify-icon icon="tabler:checks" width="24" height="24" class="text-success" ></iconify-icon>
             `;
 
             setTimeout(() => {
                 copyButton.classList.remove('copied');
                 copyButton.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    <iconify-icon icon="tabler:copy-plus" width="24" height="24" fill="currentColor"></iconify-icon>
                 `;
             }, 2000);
         });
@@ -139,31 +134,54 @@ function connectTestSocket() {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws/${token}`;
 
-    testWs = new WebSocket(wsUrl);
+    try {
+        testWs = new WebSocket(wsUrl);
 
-    testWs.onopen = () => {
-        writeToTerminal('WebSocket Connected', 'success');
-        updateButtons(true);
-    };
+        // Set a connection timeout
+        const connectionTimeout = setTimeout(() => {
+            if (testWs.readyState !== WebSocket.OPEN) {
+                testWs.close();
+                writeToTerminal('Connection timed out. Please check your token and try again.', 'error');
+                updateButtons(false);
+                testWs = null;
+            }
+        }, 5000); // 5 second timeout
 
-    testWs.onmessage = (event) => {
-        try {
-            const data = JSON.parse(event.data);
-            writeToTerminal(data);
-        } catch {
-            writeToTerminal(event.data, 'data');
-        }
-    };
+        testWs.onopen = () => {
+            clearTimeout(connectionTimeout);
+            writeToTerminal('WebSocket Connected', 'success');
+            updateButtons(true);
+        };
 
-    testWs.onclose = () => {
-        writeToTerminal('WebSocket Disconnected', 'error');
+        testWs.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                writeToTerminal(data);
+            } catch {
+                writeToTerminal(event.data, 'data');
+            }
+        };
+
+        testWs.onclose = (event) => {
+            clearTimeout(connectionTimeout);
+            const reason = event.code === 1000 ? 'Normal closure' :
+                event.code === 1006 ? 'Connection lost' :
+                    event.code === 1015 ? 'Invalid token' :
+                        `Code: ${event.code}`;
+            writeToTerminal(`WebSocket Disconnected (${reason})`, 'error');
+            updateButtons(false);
+            testWs = null;
+        };
+
+        testWs.onerror = (error) => {
+            writeToTerminal('Failed to connect. Please check your token and try again.', 'error');
+            testWs.close();
+        };
+    } catch (error) {
+        writeToTerminal(`Failed to create WebSocket connection: ${error.message}`, 'error');
         updateButtons(false);
         testWs = null;
-    };
-
-    testWs.onerror = (error) => {
-        writeToTerminal(`WebSocket Error: ${error.message}`, 'error');
-    };
+    }
 }
 
 function disconnectTestSocket() {
@@ -184,7 +202,7 @@ function sendTestMessage() {
         return;
     }
 
-    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+    const baseUrl = `${window.location.protocol}//${window.location.host}/webhook`;
 
     writeToTerminal('Sending test message...', 'data');
 
@@ -211,7 +229,7 @@ function sendTestMessage() {
     const formData = new URLSearchParams();
     formData.append('data', JSON.stringify(webhookData));
 
-    fetch(`${baseUrl}/webhook`, {
+    fetch(`${baseUrl}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -228,25 +246,36 @@ document.addEventListener('DOMContentLoaded', () => {
     highlightSection();
 
     // Theme management
-    // window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-    //     const isDark = e.matches;
-    //     document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    // });
     const themeToggle = document.getElementById('theme-toggle');
-    const sunIcon = document.getElementById('sun-icon');
-    const moonIcon = document.getElementById('moon-icon');
+    const sunStatic = document.getElementById('sun-static');
+    const moonStatic = document.getElementById('moon-static');
+    const sunTransition = document.getElementById('sun-transition');
+    const moonTransition = document.getElementById('moon-transition');
+
+    let isFirstLoad = true;
 
     function setTheme(isDark) {
+        console.log(isDark);
         // Update the color scheme preference
-        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', isDark ? 'forest' : 'winter');
 
         // Toggle Prism themes
         document.getElementById('prism-light').disabled = isDark;
         document.getElementById('prism-dark').disabled = !isDark;
 
-        sunIcon.classList.toggle('hidden', !isDark);
-        moonIcon.classList.toggle('hidden', isDark);
+        // Show static icons on first load, transition icons on subsequent changes
+        if (isFirstLoad) {
+            sunStatic.classList.toggle('hidden', !isDark);
+            moonStatic.classList.toggle('hidden', isDark);
+            sunTransition.classList.add('hidden');
+            moonTransition.classList.add('hidden');
+            isFirstLoad = false;
+        } else {
+            sunStatic.classList.add('hidden');
+            moonStatic.classList.add('hidden');
+            sunTransition.classList.toggle('hidden', !isDark);
+            moonTransition.classList.toggle('hidden', isDark);
+        }
     }
 
     // Initialize theme based on system preference
@@ -256,18 +285,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Theme toggle button handler
     themeToggle.addEventListener('click', () => {
         const currentTheme = document.documentElement.getAttribute('data-theme');
-        setTheme(currentTheme === 'light');
+        setTheme(currentTheme === 'winter');
     });
 
     highlightSection();
 });
 
 window.addEventListener('hashchange', () => {
-    setTimeout(highlightSection, 100);
+    setTimeout(highlightSection, 50);
 });
 
 function highlightSection() {
-    const sections = ['header', 'features', 'quick-start', 'getting-started'];
+    const sections = Array.from(document.querySelectorAll('section')).map(section => section.id).filter(Boolean);
+
     let current = '';
 
     // Calculate scroll progress
