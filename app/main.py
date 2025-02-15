@@ -20,6 +20,7 @@ https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-
 """
 
 import asyncio
+from collections import defaultdict
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Form
 # from fastapi.responses import FileResponse, HTMLResponse
@@ -27,10 +28,11 @@ from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
-active_connections: dict[str, WebSocket] = {}
+# Change from dict[str, WebSocket] to dict[str, set[WebSocket]]
+active_connections: dict[str, set[WebSocket]] = defaultdict(set)
 
 app = FastAPI(
-    version="1.1.0-beta-v1",
+    version="1.1.0-beta-v2",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -43,26 +45,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# @app.get("/", response_class=HTMLResponse)
-# async def root():
-#     """
-#     Returns the home page of the application, which explains the purpose
-#     and functionalities of the Ko-fi WebSocket bridge.
-#     """
-#     return FileResponse("static/index.html")
-
-# @app.get("/favicon.ico")
-# async def _favicon():
-#     return FileResponse("static/favicon.ico")
-
-# @app.get("/logo.png")
-# async def _logo():
-#     return FileResponse("static/kofi-websocket-logo.png")
-
-# @app.get("/icon.png")
-# async def _icon():
-#     return FileResponse("static/kofi-websocket-icon.png")
 
 @app.get("/ping")
 async def _ping():
@@ -93,22 +75,30 @@ async def ko_fi_webhook(data: str = Form(...)):
     if not verification_token:
         raise HTTPException(
             status_code=400, detail="Missing verification_token")
+
+    # Get all connections for this token
     if verification_token in active_connections:
-        websocket = active_connections[verification_token]
-        for _ in range(3):  # Try 3 times
-            try:
-                await websocket.send_json(webhook_data)
-                break
-            except WebSocketDisconnect:
-                if verification_token in active_connections:
-                    del active_connections[verification_token]
-                break
-            except (ConnectionError, RuntimeError):
-                await asyncio.sleep(1)
-        else:
-            if verification_token in active_connections:
+        closed_connections = set()
+        for websocket in active_connections[verification_token]:
+            for _ in range(3):  # Try 3 times
+                try:
+                    await websocket.send_json(webhook_data)
+                    break
+                except WebSocketDisconnect:
+                    closed_connections.add(websocket)
+                    break
+                except (ConnectionError, RuntimeError):
+                    await asyncio.sleep(1)
+            else:
+                closed_connections.add(websocket)
                 await websocket.close()
-                del active_connections[verification_token]
+
+        # Remove closed connections
+        active_connections[verification_token].difference_update(
+            closed_connections)
+        if not active_connections[verification_token]:
+            del active_connections[verification_token]
+
     return {"status": "success"}
 
 
@@ -126,7 +116,7 @@ async def websocket_endpoint(websocket: WebSocket, verification_token: str):
     active connections dictionary.
     """
     await websocket.accept()
-    active_connections[verification_token] = websocket
+    active_connections[verification_token].add(websocket)
     try:
         while True:
             message = await websocket.receive_text()
@@ -134,8 +124,9 @@ async def websocket_endpoint(websocket: WebSocket, verification_token: str):
                 await websocket.send_text("pong")
             # Keep connection alive
     except WebSocketDisconnect:
-        if verification_token in active_connections:
+        active_connections[verification_token].discard(websocket)
+        if not active_connections[verification_token]:
             del active_connections[verification_token]
 
 # Keep it at the end to prevent routing issues
-app.mount("/", StaticFiles(directory="static",html = True), name="static")
+app.mount("/", StaticFiles(directory="static", html=True), name="static")

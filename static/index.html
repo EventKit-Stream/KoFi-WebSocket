@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark" class="scroll-smooth">
+<html lang="en" data-theme="forest" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -20,14 +20,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url }}">
     <meta property="og:locale" content="en_US">
-    <meta property="og:image" content="{{ url }}/logo.png">
+    <meta property="og:image" content="/og_image.png">
 
     <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Ko-fi WebSocket">
     <meta name="twitter:description"
         content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
-    <meta name="twitter:image" content="{{ url }}/icon.png">
+    <meta name="twitter:image" content="/og_image.png">
 
     <!-- TailwindCSS and DaisyUI -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -42,14 +42,20 @@
     <!-- JSON Formatter -->
     <script src="https://cdn.jsdelivr.net/npm/json-formatter-js@2.3.4/dist/json-formatter.umd.min.js"></script>
 
+    <!-- Iconify -->
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.3.0/dist/iconify-icon.min.js"></script>
+
 
     <script>
         tailwind.config = {
-            theme: {
-                extend: {}
-            },
             daisyui: {
-                themes: ["light", "dark"]
+                themes: ["winter", "forest"],
+                darkTheme: "forest",
+                base: true,
+                styled: true,
+                utils: true,
+                prefix: "",
+                logs: true,
             }
         }
     </script>
@@ -60,16 +66,10 @@
             text-overflow: ellipsis;
         }
 
-        /*
-            overflow: auto;
-        }
-
-        code[class*="language-"] {
-            white-space: pre-wrap;
-        }
-        */
         .code-block {
             position: relative;
+            display: grid;
+            width: 100%;
         }
 
         .copy-button {
@@ -112,90 +112,6 @@
         .terminal-entry .jsoneditor-menu {
             display: none;
         }
-
-        [data-theme="dark"] .jsoneditor {
-            --jse-theme-color: #2a2a2a;
-            --jse-theme-color-highlight: #3a3a3a;
-        }
-
-        [data-theme="light"] .jsoneditor {
-            --jse-theme-color: #f5f5f5;
-            --jse-theme-color-highlight: #e5e5e5;
-        }
-
-        /* JSON Formatter theme customization */
-        /*[data-theme="dark"] .json-formatter-row {
-            --json-formatter-color: #e0e0e0;
-            --json-formatter-str-color: #89ddf3;
-            --json-formatter-num-color: #efb27c;
-            --json-formatter-bool-color: #ef9a9a;
-            --json-formatter-null-color: #b39ddb;
-            --json-formatter-bracket-color: #8c8c8c;
-            --json-formatter-key-color: #80cbc4;
-        }
-
-        [data-theme="light"] .json-formatter-row {
-            --json-formatter-color: #2a2a2a;
-            --json-formatter-str-color: #0277bd;
-            --json-formatter-num-color: #e65100;
-            --json-formatter-bool-color: #b71c1c;
-            --json-formatter-null-color: #4527a0;
-            --json-formatter-bracket-color: #616161;
-            --json-formatter-key-color: #00695c;
-        }
-
-        .json-formatter-row {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-        }
-
-        .json-formatter-row .json-formatter-string {
-            color: var(--json-formatter-str-color);
-        }
-
-        .json-formatter-row .json-formatter-number {
-            color: var(--json-formatter-num-color);
-        }
-
-        .json-formatter-row .json-formatter-boolean {
-            color: var(--json-formatter-bool-color);
-        }
-
-        .json-formatter-row .json-formatter-null {
-            color: var(--json-formatter-null-color);
-        }
-
-        .json-formatter-row .json-formatter-bracket {
-            color: var(--json-formatter-bracket-color);
-        }
-
-        .json-formatter-row .json-formatter-key {
-            color: var(--json-formatter-key-color);
-            padding-right: 0.5em;
-        }
-
-        .json-formatter-row,
-        .json-formatter-row a {
-            color: var(--json-formatter-color);
-        }
-
-        .json-formatter-row .json-formatter-toggler {
-            opacity: 0.6;
-            margin-right: 0.5em;
-        }
-
-        .json-formatter-row .json-formatter-toggler:after {
-            content: "►";
-        }
-
-        .json-formatter-row.json-formatter-open > .json-formatter-toggler:after {
-            content: "▼";
-        }
-
-        .json-formatter-row .json-formatter-toggler:hover {
-            opacity: 1;
-        }*/
     </style>
 </head>
 
@@ -203,20 +119,16 @@
     <div class="container mx-auto px-4 py-8">
         <div class="fixed top-4 right-4 z-50">
             <button id="theme-toggle" class="btn btn-circle btn-ghost">
-                <!-- sun icon -->
-                <svg id="sun-icon" class="h-6 w-6 fill-current hidden" xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24">
-                    <path
-                        d="M5.64,17l-.71.71a1,1,0,0,0,0,1.41,1,1,0,0,0,1.41,0l.71-.71A1,1,0,0,0,5.64,17ZM5,12a1,1,0,0,0-1-1H3a1,1,0,0,0,0,2H4A1,1,0,0,0,5,12Zm7-7a1,1,0,0,0,1-1V3a1,1,0,0,0-2,0V4A1,1,0,0,0,12,5ZM5.64,7.05a1,1,0,0,0,.7.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.41l-.71-.71A1,1,0,0,0,4.93,6.34Zm12,.29a1,1,0,0,0,.7-.29l.71-.71a1,1,0,1,0-1.41-1.41L17,5.64a1,1,0,0,0,0,1.41A1,1,0,0,0,17.66,7.34ZM21,11H20a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm-9,8a1,1,0,0,0-1,1v1a1,1,0,0,0,2,0V20A1,1,0,0,0,12,19ZM18.36,17A1,1,0,0,0,17,18.36l.71.71a1,1,0,0,0,1.41,0,1,1,0,0,0,0-1.41ZM12,6.5A5.5,5.5,0,1,0,17.5,12,5.51,5.51,0,0,0,12,6.5Zm0,9A3.5,3.5,0,1,1,15.5,12,3.5,3.5,0,0,1,12,15.5Z" />
-                </svg>
-                <!-- moon icon -->
-                <svg id="moon-icon" class="h-6 w-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path
-                        d="M21.64,13a1,1,0,0,0-1.05-.14,8.05,8.05,0,0,1-3.37.73A8.15,8.15,0,0,1,9.08,5.49a8.59,8.59,0,0,1,.25-2A1,1,0,0,0,8,2.36,10.14,10.14,0,1,0,22,14.05,1,1,0,0,0,21.64,13Zm-9.5,6.69A8.14,8.14,0,0,1,7.08,5.22v.27A10.15,10.15,0,0,0,17.22,15.63a9.79,9.79,0,0,0,2.1-.22A8.11,8.11,0,0,1,12.14,19.73Z" />
-                </svg>
+                <iconify-icon id="sun-static" icon="line-md:sunny-loop" width="24" height="24"
+                    class="hidden"></iconify-icon>
+                <iconify-icon id="sun-transition" icon="line-md:moon-to-sunny-outline-loop-transition" width="24"
+                    height="24" class="hidden"></iconify-icon>
+                <iconify-icon id="moon-static" icon="line-md:moon-loop" width="24" height="24"
+                    class="hidden"></iconify-icon>
+                <iconify-icon id="moon-transition" icon="line-md:sunny-outline-to-moon-loop-transition" width="24"
+                    height="24" class="hidden"></iconify-icon>
             </button>
         </div>
-
         <header id="header" class="card bg-base-100 shadow-xl mb-8">
             <div class="card-body text-center">
                 <h1 class="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
@@ -234,8 +146,11 @@
                     notifications for your Ko-fi events.
                 </p>
                 <div class="mt-8">
-                    <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" class="btn btn-primary">View on
-                        GitHub</a>
+                    <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" class="btn btn-primary rounded-full">
+                        <iconify-icon icon="line-md:github-loop" width="24" height="24"
+                            style="color: #000"></iconify-icon>
+                        View on GitHub
+                    </a>
                 </div>
             </div>
         </header>
@@ -282,34 +197,61 @@
         <section id="getting-started" class="card bg-base-100 shadow-xl mb-8">
             <div class="card-body">
                 <h2 class="card-title">Getting Started</h2>
-                <h3>1. Get Your Verification Token</h3>
-                <p>To find your Ko-fi verification token:</p>
-                <ol>
-                    <li>Go to your <a href="https://ko-fi.com/manage" target="_blank" rel="noopener noreferrer">Ko-fi
-                            Dashboard</a></li>
-                    <li>Click on "<a href="https://ko-fi.com/manage/webhooks" target="_blank"
-                            rel="noopener noreferrer">API</a>" in the left menu (under "More")</li>
-                    <li>Find your verification token in the "Advanced" section</li>
-                    <li>Copy the token, you'll need it for the WebSocket setup</li>
-                </ol>
 
-                <h3>2. Set Up Ko-fi Webhook</h3>
-                <p>In your Ko-fi settings, set your Webhook URL to:</p>
-                <div class="code-block">
-                    <pre
-                        id="webhook-url"><code class="language-javascript">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</code></pre>
-                </div>
-
-                <h3>3. Connect to WebSocket</h3>
-                <p>Connect to the WebSocket using your verification token:</p>
-                <div class="code-block">
-                    <pre><code class="language-javascript">const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</code></pre>
-                </div>
-
-                <h3>4. Handle Events</h3>
-                <p>Example code to handle Ko-fi notifications:</p>
-                <div class="code-block">
-                    <pre><code class="language-javascript">ws.onmessage = (event) => {
+                <div class="join join-vertical w-full  rounded-2xl">
+                    <div class="collapse collapse-arrow join-item border-base-300 border">
+                        <input type="checkbox" />
+                        <div class="collapse-title text-lg font-medium">
+                            1. Get Your Verification Token
+                        </div>
+                        <div class="collapse-content">
+                            <p class="ml-4 mb-2">To find your Ko-fi verification token:</p>
+                            <ol class="list-decimal list-inside ml-8">
+                                <li>Go to your <a class="underline hover:text-accent" href="https://ko-fi.com/manage"
+                                        target="_blank" rel="noopener noreferrer">Ko-fi
+                                        Dashboard</a></li>
+                                <li>Click on "<a class="underline hover:text-accent"
+                                        href="https://ko-fi.com/manage/webhooks" target="_blank"
+                                        rel="noopener noreferrer">API</a>" in the left menu (under "More")</li>
+                                <li>Find your verification token in the "Advanced" section</li>
+                                <li>Copy the token, you'll need it for the WebSocket setup</li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="collapse collapse-arrow join-item border-base-300 border">
+                        <input type="checkbox" />
+                        <div class="collapse-title text-lg font-medium">
+                            2. Set Up Ko-fi Webhook
+                        </div>
+                        <div class="collapse-content">
+                            <p>In your Ko-fi settings, set your Webhook URL to:</p>
+                            <div class="code-block">
+                                <pre
+                                    id="webhook-url"><code class="language-javascript">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse collapse-arrow join-item border-base-300 border">
+                        <input type="checkbox" />
+                        <div class="collapse-title text-lg font-medium">
+                            3. Connect to WebSocket
+                        </div>
+                        <div class="collapse-content">
+                            <p>Connect to the WebSocket using your verification token:</p>
+                            <div class="code-block">
+                                <pre><code class="language-javascript">const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapse collapse-arrow join-item border-base-300 border">
+                        <input type="checkbox" />
+                        <div class="collapse-title text-lg font-medium">
+                            4. Handle Events
+                        </div>
+                        <div class="collapse-content">
+                            <p>Example code to handle Ko-fi notifications:</p>
+                            <div class="code-block">
+                                <pre><code class="language-javascript">ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
     switch(data.type) {
         case "Donation":
@@ -324,9 +266,16 @@
     }
 };
 </code></pre>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
 
-                <h3>Example Implementation</h3>
+        <section id="example-implementation" class="card bg-base-100 shadow-xl mb-8">
+            <div class="card-body">
+                <h2 class="card-title">Example Implementation</h2>
                 <p>Here's a complete, fully functional, example that connects on page load:</p>
                 <div class="code-block">
                     <pre id="example-implementation"><code class="language-html">&lt;!-- Add this to your HTML --&gt;
@@ -433,7 +382,6 @@
             </div>
         </section>
 
-        <!-- Replace the navigation section -->
         <div class="fixed top-1/2 left-4 -translate-y-1/2 hidden lg:flex items-stretch gap-4">
             <!-- Progress bar aligned with nav height -->
             <div class="relative w-1 self-stretch">
@@ -448,11 +396,11 @@
             <div class="card bg-base-100 shadow-xl">
                 <div class="card-body p-4">
                     <nav class="space-y-2">
-                        <a href="#header" class="block hover:text-primary transition-colors">Header</a>
                         <a href="#features" class="block hover:text-primary transition-colors">Features</a>
                         <a href="#quick-start" class="block hover:text-primary transition-colors">Quick Start</a>
                         <a href="#getting-started" class="block hover:text-primary transition-colors">Getting
                             Started</a>
+                        <a href="#example-implementation" class="block hover:text-primary transition-colors">Example</a>
                     </nav>
                 </div>
             </div>
@@ -460,93 +408,92 @@
 
         <footer class="mt-16 mb-8">
             <div class="flex justify-center gap-4 flex-wrap">
-                <a href="https://github.com/lordlumineer" 
-                   class="btn btn-outline gap-2 hover:scale-105 transition-transform">
-                    <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-                    </svg>
+                <a href="https://github.com/lordlumineer"
+                    class="btn btn-outline gap-2 hover:scale-105 transition-transform rounded-full">
+                    <iconify-icon icon="ri:github-fill" width="24" height="24" fill="currentColor"></iconify-icon>
                     GitHub
                 </a>
-                <a href="https://twitter.com/lordlumineer" 
-                   class="btn btn-outline btn-info gap-2 hover:scale-105 transition-transform">
-                    <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M23.643 4.937c-.835.37-1.732.62-2.675.733.962-.576 1.7-1.49 2.048-2.578-.9.534-1.897.922-2.958 1.13-.85-.904-2.06-1.47-3.4-1.47-2.572 0-4.658 2.086-4.658 4.66 0 .364.042.718.12 1.06-3.873-.195-7.304-2.05-9.602-4.868-.4.69-.63 1.49-.63 2.342 0 1.616.823 3.043 2.072 3.878-.764-.025-1.482-.234-2.11-.583v.06c0 2.257 1.605 4.14 3.737 4.568-.392.106-.803.162-1.227.162-.3 0-.593-.028-.877-.082.593 1.85 2.313 3.198 4.352 3.234-1.595 1.25-3.604 1.995-5.786 1.995-.376 0-.747-.022-1.112-.065 2.062 1.323 4.51 2.093 7.14 2.093 8.57 0 13.255-7.098 13.255-13.254 0-.2-.005-.402-.014-.602.91-.658 1.7-1.477 2.323-2.41z"/>
-                    </svg>
+                <a href="https://twitter.com/lordlumineer"
+                    class="btn btn-outline btn-info gap-2 hover:scale-105 transition-transform rounded-full">
+                    <iconify-icon icon="ri:twitter-fill" width="24" height="24" fill="currentColor"></iconify-icon>
                     Twitter
                 </a>
-                <a href="https://bsky.app/profile/lordlumineer.com" 
-                   class="btn btn-outline btn-primary gap-2 hover:scale-105 transition-transform">
-                    <svg height="20" width="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565C.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479c.815 2.736 3.713 3.66 6.383 3.364q.204-.03.415-.056q-.207.033-.415.056c-3.912.58-7.387 2.005-2.83 7.078c5.013 5.19 6.87-1.113 7.823-4.308c.953 3.195 2.05 9.271 7.733 4.308c4.267-4.308 1.172-6.498-2.74-7.078a9 9 0 0 1-.415-.056q.21.026.415.056c2.67.297 5.568-.628 6.383-3.364c.246-.828.624-5.79.624-6.478c0-.69-.139-1.861-.902-2.206c-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8"/>
-                    </svg>
+                <a href="https://bsky.app/profile/lordlumineer.com"
+                    class="btn btn-outline btn-primary gap-2 hover:scale-105 transition-transform rounded-full">
+                    <iconify-icon icon="ri:bluesky-fill" width="24" height="24" fill="currentColor"></iconify-icon>
                     Bluesky
                 </a>
             </div>
             <div class="text-center mt-4 text-sm text-base-content/60">
-                Made with ❤️ by <a href="https://github.com/LordLumineer" class="hover:text-primary">Lord Lumineer</a> | <a href="https://github.com/EventKit-Stream" class="hover:text-primary">EventKit-Stream</a>
+                Made with ❤️ by <a href="https://github.com/LordLumineer" class="hover:text-primary">Lord Lumineer</a> |
+                <a href="https://github.com/EventKit-Stream" class="hover:text-primary">EventKit-Stream</a>
                 <div class="mt-2">
-                    Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" class="hover:text-primary">Apache License 2.0</a>
+                    Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0"
+                        class="hover:text-primary">Apache License 2.0</a>
                 </div>
             </div>
         </footer>
 
-        <!-- Replace the floating button with improved labeled version -->
         <div class="fixed bottom-4 right-4 z-50 flex items-center gap-2">
             <span class="hidden md:block text-sm font-medium bg-base-100 py-1 px-2 rounded-lg shadow-lg">
-                Try it out
+                Demo
             </span>
-            <button onclick="window.try_it_modal.showModal()"
+            <button onclick="window.demo_modal.showModal()"
                 class="btn btn-sm btn-circle btn-primary shadow-lg hover:scale-110 transition-transform">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+                <iconify-icon icon="material-symbols-light:bolt-outline-rounded" width="20" height="20"
+                    fill="currentColor"></iconify-icon>
             </button>
         </div>
 
-    <!-- Keep the existing modal dialog -->
-    <dialog id="try_it_modal" class="modal modal-bottom sm:modal-middle">
-        <div class="modal-box w-11/12 max-w-5xl">
-            <!-- Close button -->
-            <form method="dialog" class="absolute right-2 top-2">
-                <button class="btn btn-sm btn-circle btn-ghost">✕</button>
-            </form>
+        <dialog id="demo_modal" class="modal modal-bottom sm:modal-middle">
+            <div class="modal-box sm:w-full md:w-11/12 md:max-w-5xl">
+                <!-- Close button -->
+                <form method="dialog" class="absolute right-2 top-2">
+                    <button class="btn btn-icon btn-circle btn-ghost justify-center items-center scale-75">
+                        <iconify-icon icon="material-symbols:close-rounded" style="font-size: 24px"></iconify-icon>
+                    </button>
+                </form>
 
-            <!-- Try It Out content -->
-            <h2 class="font-bold text-lg mb-4">Try It Out</h2>
-            <div class="space-y-4">
-                <div class="flex flex-wrap gap-4">
-                    <input type="text" id="token-input" placeholder="Enter your verification token"
-                        class="input input-bordered flex-1">
-                    <button id="connect-button" class="btn btn-primary" onclick="toggleConnection()">Connect</button>
-                    <button id="send-test-button" class="btn btn-accent" disabled onclick="sendTestMessage()">Send Test
-                        Message</button>
-                </div>
-
-                <div class="card bg-neutral text-neutral-content">
-                    <div class="card-body p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="font-bold">WebSocket Terminal</span>
-                            <button id="clear-messages-button" class="btn btn-sm btn-ghost"
-                                onclick="clearTerminal()">Clear</button>
+                <h2 class="font-bold text-lg">Ko-fi WebSocket Demo</h2>
+                <h3 class="text-base mb-4">Directly try Ko-fi WebSocket in your browser.</h3>
+                <div class="space-y-4">
+                    <div class="flex flex-wrap gap-4">
+                        <input type="text" id="token-input" placeholder="Enter your verification token"
+                            class="input input-bordered flex-1 rounded-full">
+                        <div>
+                            <button id="connect-button" class="btn btn-primary rounded-full"
+                                onclick="toggleConnection()">Connect</button>
+                            <button id="send-test-button" class="btn btn-accent rounded-full" disabled
+                                onclick="sendTestMessage()">Send
+                                Test
+                                Message</button>
                         </div>
-                        <div id="terminal" class="font-mono text-sm h-64 overflow-y-auto space-y-2"></div>
+                    </div>
+
+                    <div class="card bg-neutral text-neutral-content">
+                        <div class="card-body p-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-bold">WebSocket Terminal</span>
+                                <button id="clear-messages-button" class="btn btn-sm btn-ghost rounded-full"
+                                    onclick="clearTerminal()">Clear</button>
+                            </div>
+                            <div id="terminal"
+                                class="font-mono text-sm min-h-24 h-fit max-h-64 overflow-y-auto space-y-2"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
+            <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+            </form>
+        </dialog>
 
-    <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <!-- Load JSONEditor before your main script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"></script>
-    <script src="script.js"></script>
+        <!-- Scripts -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"></script>
+        <script src="script.js"></script>
 </body>
 
 </html>
