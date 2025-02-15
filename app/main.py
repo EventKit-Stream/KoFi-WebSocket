@@ -45,7 +45,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/ping")
 async def _ping():
     return {"message": "pong"}

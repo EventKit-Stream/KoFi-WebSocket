@@ -203,7 +203,6 @@ function sendTestMessage() {
     }
 
     const baseUrl = `${window.location.protocol}//${window.location.host}/webhook`;
-    // const baseUrl = `http://localhost/webhook`;
 
     writeToTerminal('Sending test message...', 'data');
 
