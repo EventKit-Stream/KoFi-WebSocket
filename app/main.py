@@ -23,16 +23,14 @@ import asyncio
 from collections import defaultdict
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Form
-# from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.exceptions import HTTPException
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
-# Change from dict[str, WebSocket] to dict[str, set[WebSocket]]
 active_connections: dict[str, set[WebSocket]] = defaultdict(set)
 
 app = FastAPI(
-    version="1.1.0-beta-v3",
+    version="1.1.0-beta-v4",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
