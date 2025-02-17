@@ -89,16 +89,6 @@
             opacity: 1;
         }
 
-        .copy-button svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            fill: currentColor;
-        }
-
-        .copy-button.copied svg {
-            fill: #4ade80;
-        }
-
         /* JSON Editor styles */
         .jsoneditor {
             border: none !important;
@@ -115,27 +105,31 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-base-100 to-base-200">
-    <div class="container mx-auto px-4 py-8">
-        <div class="fixed top-4 right-4 z-50">
-            <button id="theme-toggle" class="btn btn-circle btn-ghost">
-                <iconify-icon id="sun-static" icon="line-md:sunny-loop" width="24" height="24"
-                    class="hidden"></iconify-icon>
-                <iconify-icon id="sun-transition" icon="line-md:moon-to-sunny-outline-loop-transition" width="24"
-                    height="24" class="hidden"></iconify-icon>
-                <iconify-icon id="moon-static" icon="line-md:moon-loop" width="24" height="24"
-                    class="hidden"></iconify-icon>
-                <iconify-icon id="moon-transition" icon="line-md:sunny-outline-to-moon-loop-transition" width="24"
-                    height="24" class="hidden"></iconify-icon>
-            </button>
-        </div>
+<body class="flex justify-center min-h-screen bg-gradient-to-br from-base-100 to-base-200">
+    <!-- Theme toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="theme-toggle" class="btn btn-circle btn-ghost hover:text-accent">
+            <iconify-icon id="sun-static" icon="line-md:sunny-loop" width="24" height="24"
+                class="hidden"></iconify-icon>
+            <iconify-icon id="sun-transition" icon="line-md:moon-to-sunny-outline-loop-transition" width="24"
+                height="24" class="hidden"></iconify-icon>
+            <iconify-icon id="moon-static" icon="line-md:moon-loop" width="24" height="24"
+                class="hidden"></iconify-icon>
+            <iconify-icon id="moon-transition" icon="line-md:sunny-outline-to-moon-loop-transition" width="24"
+                height="24" class="hidden"></iconify-icon>
+        </button>
+    </div>
+
+    <!-- Main content -->
+    <div class="flex-col mx-2 sm:mx-14 lg:mx-36 max-w-7xl px-4 py-8">
+
         <header id="header" class="card bg-base-100 shadow-xl mb-8">
             <div class="card-body text-center">
                 <h1 class="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                     Ko-fi WebSocket
                 </h1>
                 <div class="inline-flex justify-center">
-                    <div id="version-badge" class="bg-gradient-to-r from-primary/10 to-secondary/10 border-2 border-primary/20 
+                    <div id="version-badge" class="bg-gradient-to-r from-primary/10 to-secondary/10 border-2 border-primary/20
                                 px-3 py-1 rounded-full text-sm font-medium mt-2 backdrop-blur-sm
                                 shadow-lg shadow-primary/5 whitespace-nowrap">
                         Loading...
@@ -146,7 +140,8 @@
                     notifications for your Ko-fi events.
                 </p>
                 <div class="mt-8">
-                    <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" class="btn btn-primary rounded-full">
+                    <a href="https://github.com/EventKit-Stream/KoFi-WebSocket" target="_blank"
+                        rel="noopener noreferrer" class="btn btn-primary rounded-full">
                         <iconify-icon icon="line-md:github-loop" width="24" height="24"
                             fill="currentColor"></iconify-icon>
                         View on GitHub
@@ -155,26 +150,30 @@
             </div>
         </header>
 
-        <section id="features" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="card bg-base-100 shadow-xl">
+        <section id="features" class="flex flex-wrap gap-8 my-8">
+            <div
+                class="flex-1 min-w-64 rounded-2xl bg-base-100 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-transform duration-300">
                 <div class="card-body">
                     <h3 class="card-title">Real-time Updates</h3>
                     <p>Instant notification delivery via WebSocket connections</p>
                 </div>
             </div>
-            <div class="card bg-base-100 shadow-xl">
+            <div
+                class="flex-1 min-w-64 rounded-2xl bg-base-100 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-transform duration-300">
                 <div class="card-body">
                     <h3 class="card-title">Secure</h3>
                     <p>Token-based authentication for secure communications</p>
                 </div>
             </div>
-            <div class="card bg-base-100 shadow-xl">
+            <div
+                class="flex-1 min-w-64 rounded-2xl bg-base-100 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-transform duration-300">
                 <div class="card-body">
                     <h3 class="card-title">Universal Support</h3>
                     <p>Compatible with all Ko-fi event types</p>
                 </div>
             </div>
-            <div class="card bg-base-100 shadow-xl">
+            <div
+                class="flex-1 min-w-64 rounded-2xl bg-base-100 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-transform duration-300">
                 <div class="card-body">
                     <h3 class="card-title">Easy Integration</h3>
                     <p>Simple to integrate with any WebSocket client</p>
@@ -182,15 +181,11 @@
             </div>
         </section>
 
-        <!-- Remove the try-it-out section from here -->
-
         <section id="quick-start" class="card bg-base-100 shadow-xl mb-8">
             <div class="card-body">
                 <h2 class="card-title">Quick Start</h2>
                 <p>Connect to the WebSocket endpoint using your verification token:</p>
-                <div class="code-block">
-                    <pre><code class="language-javascript">{{ WSprotocol }}//{{ HOSTNAME }}/ws/{verification_token}</code></pre>
-                </div>
+                <div class="code-block copy" id="ws-code"></div>
             </div>
         </section>
 
@@ -199,7 +194,7 @@
                 <h2 class="card-title">Getting Started</h2>
                 <div class="join join-vertical w-full  rounded-2xl">
                     <div class="collapse collapse-arrow join-item border-base-300 border">
-                        <input type="checkbox" />
+                        <input type="checkbox" checked />
                         <div class="collapse-title text-lg font-medium">
                             1. Get Your Verification Token
                         </div>
@@ -218,16 +213,13 @@
                         </div>
                     </div>
                     <div class="collapse collapse-arrow join-item border-base-300 border">
-                        <input type="checkbox" />
+                        <input type="checkbox" checked />
                         <div class="collapse-title text-lg font-medium">
                             2. Set Up Ko-fi Webhook
                         </div>
                         <div class="collapse-content">
                             <p>In your Ko-fi settings, set your Webhook URL to:</p>
-                            <div class="code-block">
-                                <pre
-                                    id="webhook-url"><code class="language-javascript">{{ HTTPprotocol }}//{{ HOSTNAME }}/webhook</code></pre>
-                            </div>
+                            <div class="code-block copy" id="webhook-code"></div>
                         </div>
                     </div>
                     <div class="collapse collapse-arrow join-item border-base-300 border">
@@ -237,9 +229,7 @@
                         </div>
                         <div class="collapse-content">
                             <p>Connect to the WebSocket using your verification token:</p>
-                            <div class="code-block">
-                                <pre><code class="language-javascript">const ws = new WebSocket('{{ WSprotocol }}//{{ HOSTNAME }}/ws/YOUR_VERIFICATION_TOKEN');</code></pre>
-                            </div>
+                            <div class="code-block" id="ws-connect-code"></div>
                         </div>
                     </div>
                     <div class="collapse collapse-arrow join-item border-base-300 border">
@@ -249,23 +239,7 @@
                         </div>
                         <div class="collapse-content">
                             <p>Example code to handle Ko-fi notifications:</p>
-                            <div class="code-block">
-                                <pre><code class="language-javascript">ws.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    switch(data.type) {
-        case "Donation":
-            console.log(`New donation from ${data.from_name}: ${data.amount} ${data.currency}`);
-            break;
-        case "Subscription":
-            console.log(`New subscriber: ${data.from_name}`);
-            break;
-        case "Shop Order":
-            console.log(`New shop order from ${data.from_name}`);
-            break;
-    }
-};
-</code></pre>
-                            </div>
+                            <div class="code-block" id="handle-events-code"></div>
                         </div>
                     </div>
                 </div>
@@ -276,222 +250,123 @@
             <div class="card-body">
                 <h2 class="card-title">Example Implementation</h2>
                 <p>Here's a complete, fully functional, example that connects on page load:</p>
-                <div class="code-block">
-                    <pre id="example-implementation"><code class="language-html">&lt;!-- Add this to your HTML --&gt;
-&lt;div id="kofi-notifications"&gt;&lt;/div&gt;
-
-&lt;!-- Add this to your JavaScript file or &lt;script&gt; tag --&gt;
-&lt;script&gt;
-    document.addEventListener('DOMContentLoaded', () => {
-        class KofiWebSocket {
-            constructor(token) {
-                this.token = token;
-                this.connect();
-            }
-
-            connect() {
-                this.ws = new WebSocket(`{{ WSprotocol }}//{{ HOSTNAME }}/ws/${this.token}`);
-
-                this.ws.onopen = () => {
-                    console.log('Connected to Ko-fi WebSocket');
-                    this.showNotification('Connected to Ko-fi WebSocket', 'success');
-                };
-
-                this.ws.onmessage = (event) => {
-                    // Create and dispatch a custom event
-                    const kofiEvent = new CustomEvent('onEventReceived', {
-                        detail: {
-                            event: JSON.parse(event.data)
-                        }
-                    });
-                    switch (kofiEvent.detail.event.type) {
-                        case "Donation":
-                            kofiEvent.detail.listener = "kofi-donation-latest";
-                            break;
-                        case "Subscription":
-                            kofiEvent.detail.listener = "kofi-subscription-latest";
-                            break;
-                        case "Shop Order":
-                            kofiEvent.detail.listener = "kofi-order-latest";
-                            break;
-                        default:
-                            kofiEvent.detail.listener = `kofi-${eventData.type.toLowerCase()}-latest`;
-                    }
-                    document.dispatchEvent(kofiEvent);
-                };
-
-                this.ws.onclose = () => {
-                    console.log('Disconnected from Ko-fi WebSocket');
-                    this.showNotification('Connection lost, reconnecting...', 'error');
-                    // Reconnect after 5 seconds
-                    setTimeout(() => this.connect(), 5000);
-                };
-
-                this.ws.onerror = (error) => {
-                    console.error('WebSocket error:', error);
-                    this.showNotification('Connection error', 'error');
-                };
-            }
-
-            showNotification(message, type = 'info') {
-                const notification = document.createElement('div');
-                notification.className = `kofi-notification ${type}`;
-                notification.innerHTML = `
-                &lt;p&gt;${message}&lt;/p&gt;
-            `;
-
-                document.getElementById('kofi-notifications').appendChild(notification);
-                setTimeout(() => notification.remove(), 5000);
-            }
-        }
-
-        // Initialize on page load with your token
-        const kofi = new KofiWebSocket('YOUR_VERIFICATION_TOKEN');
-
-        // Handle Ko-fi events
-        document.addEventListener('onEventReceived', (event) => {
-            const data = event.detail.event;
-            let message = '';
-            console.log(data);
-            switch (event.detail.listener) {
-                case "kofi-donation-latest":
-                    message = `${data.from_name} donated ${data.amount} ${data.currency} &lt;br&gt; ${data.message}`;
-                    break;
-                case "kofi-subscription-latest":
-                    if (data.is_first_subscription_payment) {
-                        message = `${data.from_name} subscribed! &lt;br&gt; ${data.message}`;
-                    }
-                    else {
-                        message = `${data.from_name} renewed their ${data.tier_name} tier subscription!`;
-                    }
-                    break;
-                case "kofi-order-latest":
-                    message = `${data.from_name} placed a ${data.amount} ${data.currency} order, what a champ!`;
-                    break;
-                default:
-                    message = `New event from ${data.from_name}`;
-            }
-
-            kofi.showNotification(message, 'info');
-        });
-    });
-&lt;/script&gt;
-</code></pre>
-                </div>
+                <div class="code-block copy" id="implementation-code"></div>
             </div>
         </section>
 
-        <div class="fixed top-1/2 left-4 -translate-y-1/2 hidden lg:flex items-stretch gap-4">
-            <!-- Progress bar aligned with nav height -->
-            <div class="relative w-1 self-stretch">
-                <div class="absolute inset-0 bg-base-300 rounded-full"></div>
-                <div id="scroll-progress"
-                    class="absolute top-0 left-0 w-full bg-primary rounded-full transition-all duration-200"
-                    style="height: 0%">
-                </div>
-            </div>
-
-            <!-- Navigation menu -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4">
-                    <nav class="space-y-2">
-                        <a href="#features" class="block hover:text-primary transition-colors">Features</a>
-                        <a href="#quick-start" class="block hover:text-primary transition-colors">Quick Start</a>
-                        <a href="#getting-started" class="block hover:text-primary transition-colors">Getting
-                            Started</a>
-                        <a href="#example-implementation" class="block hover:text-primary transition-colors">Example</a>
-                    </nav>
-                </div>
-            </div>
-        </div>
-
         <footer class="mt-16 mb-8">
             <div class="flex justify-center gap-4 flex-wrap">
-                <a href="https://github.com/lordlumineer"
+                <a href="https://github.com/lordlumineer" target="_blank" rel="noopener noreferrer"
                     class="btn btn-outline gap-2 hover:scale-105 transition-transform rounded-full">
                     <iconify-icon icon="ri:github-fill" width="24" height="24" fill="currentColor"></iconify-icon>
                     GitHub
                 </a>
-                <a href="https://twitter.com/lordlumineer"
+                <a href="https://twitter.com/lordlumineer" target="_blank" rel="noopener noreferrer"
                     class="btn btn-outline btn-info gap-2 hover:scale-105 transition-transform rounded-full">
                     <iconify-icon icon="ri:twitter-fill" width="24" height="24" fill="currentColor"></iconify-icon>
                     Twitter
                 </a>
-                <a href="https://bsky.app/profile/lordlumineer.com"
+                <a href="https://bsky.app/profile/lordlumineer.com" target="_blank" rel="noopener noreferrer"
                     class="btn btn-outline btn-primary gap-2 hover:scale-105 transition-transform rounded-full">
                     <iconify-icon icon="ri:bluesky-fill" width="24" height="24" fill="currentColor"></iconify-icon>
                     Bluesky
                 </a>
             </div>
             <div class="text-center mt-4 text-sm text-base-content/60">
-                Made with ❤️ by <a href="https://github.com/LordLumineer" class="hover:text-primary">Lord Lumineer</a> |
-                <a href="https://github.com/EventKit-Stream" class="hover:text-primary">EventKit-Stream</a>
+                Made with ❤️ by <a href="https://github.com/LordLumineer" target="_blank" rel="noopener noreferrer"
+                    class="hover:text-primary">Lord Lumineer</a> |
+                <a href="https://github.com/EventKit-Stream" target="_blank" rel="noopener noreferrer"
+                    class="hover:text-primary">EventKit-Stream</a>
                 <div class="mt-2">
-                    Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0"
-                        class="hover:text-primary">Apache License 2.0</a>
+                    Licensed under <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"
+                        rel="noopener noreferrer" class="hover:text-primary">Apache License 2.0</a>
                 </div>
             </div>
         </footer>
+    </div>
 
-        <div class="fixed bottom-4 right-4 z-50 flex items-center gap-2">
-            <span class="hidden md:block text-sm font-medium bg-base-100 py-1 px-2 rounded-lg shadow-lg">
-                Demo
-            </span>
-            <button onclick="window.demo_modal.showModal()"
-                class="btn btn-sm btn-circle btn-primary shadow-lg hover:scale-110 transition-transform">
-                <iconify-icon icon="material-symbols-light:bolt-outline-rounded" width="20" height="20"
-                    fill="currentColor"></iconify-icon>
-            </button>
+    <!-- Navigation -->
+    <div
+        class="fixed top-1/2 right-[-7.5rem] lg:left-4 -translate-y-1/2 flex h-[80%] lg:h-fit lg:flex w-fit items-stretch gap-4">
+        <!-- Progress bar aligned with nav height -->
+        <div class="relative w-1 self-stretch">
+            <div class="absolute inset-0 bg-base-300 rounded-full"></div>
+            <div id="scroll-progress"
+                class="absolute top-0 left-0 w-full bg-primary rounded-full transition-all duration-200 min-h-1"
+                style="height: 0%">
+            </div>
         </div>
 
-        <dialog id="demo_modal" class="modal modal-bottom sm:modal-middle">
-            <div class="modal-box sm:w-full md:w-11/12 md:max-w-5xl">
-                <!-- Close button -->
-                <form method="dialog" class="absolute right-2 top-2">
-                    <button class="btn btn-icon btn-circle btn-ghost justify-center items-center scale-75">
-                        <iconify-icon icon="material-symbols:close-rounded" style="font-size: 24px"></iconify-icon>
-                    </button>
-                </form>
+        <!-- Navigation menu -->
+        <nav class="card bg-base-100 shadow-xl opacity-0 lg:opacity-100">
+            <div class="card-body p-4">
+                <nav class="space-y-2">
+                    <a href="#features" class="block hover:text-primary transition-colors">Features</a>
+                    <a href="#quick-start" class="block hover:text-primary transition-colors">Quick Start</a>
+                    <a href="#getting-started" class="block hover:text-primary transition-colors">Getting
+                        Started</a>
+                    <a href="#example-implementation" class="block hover:text-primary transition-colors">Example</a>
+                </nav>
+            </div>
+        </nav>
+    </div>
 
-                <h2 class="font-bold text-lg">Ko-fi WebSocket Demo</h2>
-                <h3 class="text-base mb-4">Directly try Ko-fi WebSocket in your browser.</h3>
-                <div class="space-y-4">
-                    <div class="flex flex-wrap gap-4">
-                        <input type="text" id="token-input" placeholder="Enter your verification token"
-                            class="input input-bordered flex-1 rounded-full">
-                        <div>
-                            <button id="connect-button" class="btn btn-primary rounded-full"
-                                onclick="toggleConnection()">Connect</button>
-                            <button id="send-test-button" class="btn btn-accent rounded-full" disabled
-                                onclick="sendTestMessage()">Send
-                                Test
-                                Message</button>
-                        </div>
+    <!-- Demo -->
+    <div class="fixed bottom-4 right-4 z-50 flex items-center gap-2">
+        <span class="hidden md:block text-sm font-medium bg-base-100 py-1 px-2 rounded-lg shadow-lg">
+            Demo
+        </span>
+        <button onclick="window.demo_modal.showModal()"
+            class="btn btn-sm btn-circle btn-primary shadow-lg hover:scale-110 transition-transform">
+            <iconify-icon icon="material-symbols-light:bolt-outline-rounded" width="20" height="20"
+                fill="currentColor"></iconify-icon>
+        </button>
+    </div>
+
+    <dialog id="demo_modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box sm:w-full md:w-11/12 md:max-w-5xl">
+            <!-- Close button -->
+            <form method="dialog" class="absolute right-2 top-2">
+                <button class="btn btn-icon btn-circle btn-ghost justify-center items-center scale-75">
+                    <iconify-icon icon="material-symbols:close-rounded" style="font-size: 24px"></iconify-icon>
+                </button>
+            </form>
+
+            <h2 class="font-bold text-lg">Ko-fi WebSocket Demo</h2>
+            <h3 class="text-base mb-4">Directly try Ko-fi WebSocket in your browser.</h3>
+            <div class="space-y-4">
+                <div class="flex flex-wrap gap-4">
+                    <input type="text" id="token-input" placeholder="Enter your verification token"
+                        class="input input-bordered flex-1 rounded-full">
+                    <div>
+                        <button id="connect-button" class="btn btn-primary rounded-full">Connect</button>
+                        <button id="send-test-button" class="btn btn-accent rounded-full" disabled>Send Test
+                            Message</button>
                     </div>
-                    <div class="card bg-neutral text-neutral-content">
-                        <div class="card-body p-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="font-bold">WebSocket Terminal</span>
-                                <button id="clear-messages-button" class="btn btn-sm btn-ghost rounded-full"
-                                    onclick="clearTerminal()">Clear</button>
-                            </div>
-                            <div id="terminal"
-                                class="font-mono text-sm min-h-24 h-fit max-h-64 overflow-y-auto space-y-2"></div>
+                </div>
+                <div class="card bg-neutral text-neutral-content">
+                    <div class="card-body p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold">WebSocket Terminal</span>
+                            <button id="clear-messages-button" class="btn btn-sm btn-ghost rounded-full">Clear</button>
+                        </div>
+                        <div id="terminal" class="font-mono text-sm min-h-24 h-fit max-h-64 overflow-y-auto space-y-2">
                         </div>
                     </div>
                 </div>
             </div>
-            <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-            </form>
-        </dialog>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
 
-        <!-- Scripts -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"></script>
-        <script src="script.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.10.2/jsoneditor.min.js"></script>
+    <script src="script.js"></script>
 </body>
 
 </html>
