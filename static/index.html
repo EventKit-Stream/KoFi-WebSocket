@@ -32,6 +32,8 @@
     <!-- TailwindCSS and DaisyUI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@3.9.2/dist/full.css" rel="stylesheet">
+    <!-- Override DaisyUI theme -->
+    <link href="style.css" rel="stylesheet">
 
     <!-- Prism.js -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet"
@@ -51,11 +53,6 @@
             daisyui: {
                 themes: ["winter", "forest"],
                 darkTheme: "forest",
-                base: true,
-                styled: true,
-                utils: true,
-                prefix: "",
-                logs: true,
             }
         }
     </script>
@@ -107,7 +104,7 @@
 
 <body class="flex justify-center min-h-screen bg-gradient-to-br from-base-100 to-base-200">
     <!-- Theme toggle -->
-    <div class="fixed top-4 right-4 z-50">
+    <div class="fixed top-4 right-[11px] z-50">
         <button id="theme-toggle" class="btn btn-circle btn-ghost hover:text-accent">
             <iconify-icon id="sun-static" icon="line-md:sunny-loop" width="24" height="24"
                 class="hidden"></iconify-icon>
@@ -121,7 +118,7 @@
     </div>
 
     <!-- Main content -->
-    <div class="flex-col mx-2 sm:mx-14 lg:mx-36 max-w-7xl px-4 py-8">
+    <div class="flex-col mx-2 sm:mx-14 lg:mx-40 w-[75%] max-w-7xl px-4 py-8">
 
         <header id="header" class="card bg-base-100 shadow-xl mb-8">
             <div class="card-body text-center">
@@ -287,7 +284,7 @@
 
     <!-- Navigation -->
     <div
-        class="fixed top-1/2 right-[-7.5rem] lg:left-4 -translate-y-1/2 flex h-[80%] lg:h-fit lg:flex w-fit items-stretch gap-4">
+        class="fixed lg:top-1/2 right-4 lg:left-4 lg:-translate-y-1/2 flex py-16 h-full lg:h-fit lg:flex w-fit items-stretch gap-4">
         <!-- Progress bar aligned with nav height -->
         <div class="relative w-1 self-stretch">
             <div class="absolute inset-0 bg-base-300 rounded-full"></div>
@@ -298,7 +295,7 @@
         </div>
 
         <!-- Navigation menu -->
-        <nav class="card bg-base-100 shadow-xl opacity-0 lg:opacity-100">
+        <nav class="card border-[0.5px] border-secondary/10 bg-base-100 shadow-xl opacity-0 lg:opacity-100 w-0 lg:w-40">
             <div class="card-body p-4">
                 <nav class="space-y-2">
                     <a href="#features" class="block hover:text-primary transition-colors">Features</a>

@@ -141,8 +141,14 @@ class ThemeManager {
     }
 
     init() {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        this.setTheme(prefersDark);
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            this.setTheme(savedTheme === 'forest');
+        } else {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            this.setTheme(prefersDark);
+        }
+
         this.themeToggle.addEventListener('click', () => {
             const currentTheme = document.documentElement.getAttribute('data-theme');
             this.setTheme(currentTheme === 'winter');
@@ -150,7 +156,9 @@ class ThemeManager {
     }
 
     setTheme(isDark) {
-        document.documentElement.setAttribute('data-theme', isDark ? 'forest' : 'winter');
+        const theme = isDark ? 'forest' : 'winter';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
         document.getElementById('prism-light').disabled = isDark;
         document.getElementById('prism-dark').disabled = !isDark;
 
@@ -407,7 +415,6 @@ class CodeBlockManager {
 
         document.querySelectorAll('.code-block').forEach(block => {
             const pre = block.querySelector('pre');
-            this.setupProtocolReplacement(pre);
             this.setupCopyButton(block, pre);
         });
         Prism.highlightAll();
@@ -420,21 +427,6 @@ class CodeBlockManager {
         codeBlock.textContent = code.trim();
         pre.appendChild(codeBlock);
         document.getElementById(id).appendChild(pre);
-    }
-
-    setupProtocolReplacement(pre) {
-        if (!pre) return;
-        const protocol = window.location.protocol;
-        if (pre.textContent.includes('protocol')) {
-            pre.textContent = pre.textContent
-                .replace('{{ WSprotocol }}', protocol.replace('http', 'ws'))
-                .replace('{{ HTTPprotocol }}', protocol);
-        }
-        if (pre.textContent.includes('HOSTNAME')) {
-            const hostname = window.location.hostname;
-            const port = window.location.port;
-            pre.textContent = pre.textContent.replace('{{ HOSTNAME }}', hostname + (port ? ':' + port : ''));
-        }
     }
 
     setupCopyButton(block, pre) {
