@@ -25,6 +25,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Reduced the amount of endpoints by directly mounting the static files in the server
 
+- CI/CD:
+  - Modified the GitHub Actions so it queries the possible versions once at the start of the workflow.
+  - The workflow fails if no main version is found (for any release type)
+  - For production releases (PR on `master`):
+    - The workflow fails if the version is not found in the changelog
+    - If version syntax follows the development version (`<release>-<stage [alpha/beta/rc/...]>-<devVersion>`, the use of the `devVersion` is optional), the workflow fails
+  - For pre-release (PR on `pre-release`):
+    - The workflow fails if the version doesn't follow the development version syntax
+
+- `DockerHub_ReadMe.md` created, this is the file to write the description of the Docker image on DockerHub.
+
 ## [1.0.4] - 2025-02-02
 
 ### Changes in 1.0.4
