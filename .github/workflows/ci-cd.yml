@@ -7,22 +7,72 @@ on:
     branches: [ master, pre-release ]
 
 jobs:
+  get-version:
+    name: Get versions (main-stage-devVersion)
+    runs-on: ubuntu-latest
+
+    outputs:
+      versionMain: ${{ steps.get_version.outputs.versionMain }}
+      versionDevStage: ${{ steps.get_version.outputs.versionDevStage }}
+      versionDevVersion: ${{ steps.get_version.outputs.versionDevVersion }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          versionMain=$(grep -oP "version=\"\K[0-9.]+" app/main.py || echo "NO_MAIN_VERSION")
+          versionDevStage=$(grep -oP 'version=\"\K[0-9.]+-\K[a-zA-Z]+' app/main.py || echo "NO_DEV_STAGE")
+          versionDevVersion=$(grep -oP 'version=\"\K[0-9.]+-\K[a-zA-Z]+-\K[a-zA-Z0-9.]+' app/main.py || echo "NO_DEV_VERSION")
+          echo "versionMain=$versionMain" >> $GITHUB_OUTPUT
+          echo "versionDevStage=$versionDevStage" >> $GITHUB_OUTPUT
+          echo "versionDevVersion=$versionDevVersion" >> $GITHUB_OUTPUT
+
+      - name: Check Main Version
+        run: |
+          if [ "${{ steps.get_version.outputs.versionMain }}" == "NO_MAIN_VERSION" ]; then
+            echo "Fail: invalid main version (missing)"
+            exit 1
+          fi
+
+      - name: Check Version for Production
+        if: github.ref == 'refs/heads/master'
+        run: |
+          changelogVersion=$(grep "\[${{ steps.get_version.outputs.versionMain }}\]" CHANGES.md || echo "NO_VERSION")
+          if [ "$changelogVersion" == "NO_VERSION" ]; then
+            echo "Version ${{ steps.get_version.outputs.versionMain }} not found in changelog"
+            exit 1
+          fi
+          if [ "${{ steps.get_version.outputs.versionDevStage }}" != "NO_DEV_STAGE" ]; then
+            echo "No development stage allowed in production"
+            exit 1
+          fi
+          if [ "${{ steps.get_version.outputs.versionDevVersion }}" != "NO_DEV_STAGE" ]; then
+            echo "No development stage allowed in production"
+            exit 1
+          fi
+
+      - name: Check Dev Stage
+        if: github.base_ref == 'pre-release'
+        run: |
+          if [ "${{ steps.get_version.outputs.versionDevStage }}" == "NO_DEV_STAGE" ]; then
+            echo "Fail: invalid development stage (missing)"
+            exit 1
+          fi
+
   test:
     name: Run tests and collect coverage and linting
+    needs: get-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check version for pre-release
-        if: github.base_ref == 'pre-release'
-        run: |
-          validState=$(grep -oP 'version=\"\K[0-9.]+-\K['-']+' app/main.py || echo "valid")
-          if [ "$validState" != "valid" ]; then
-            echo "Fail: invalid development state (missing)"
-            exit 1
-          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -50,7 +100,7 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   deploy:
-    needs: test
+    needs: [get-version, test]
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pre-release'
     runs-on: ubuntu-latest
     steps:
@@ -58,16 +108,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-
-    - name: Get version
-      id: get_version
-      run: |
-        version=$(grep -oP "version=\"\K[0-9.]+" app/main.py || echo "0.0.0")
-        versionState=$(grep -oP 'version=\"\K[0-9.]+-\K[a-zA-Z]+' app/main.py || echo "dev")
-        versionSub=$(grep -oP 'version=\"\K[0-9.]+-\K[a-zA-Z]+-\K[a-zA-Z0-9.]+' app/main.py || echo "missing")
-        echo "version=$version" >> $GITHUB_OUTPUT
-        echo "versionState=$versionState" >> $GITHUB_OUTPUT
-        echo "versionSub=$versionSub" >> $GITHUB_OUTPUT
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -88,26 +128,25 @@ jobs:
         push: true
         tags: |
           ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:latest
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:${{ steps.get_version.outputs.version }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:${{ needs.get-version.outputs.versionMain }}
 
     - name: Build and push Docker images (pre-release with subversion)
-      if: github.ref == 'refs/heads/pre-release' && steps.get_version.outputs.versionSub != 'missing'
+      if: github.ref == 'refs/heads/pre-release' && needs.get-version.outputs.versionDevStage != 'NO_DEV_STAGE' && needs.get-version.outputs.versionDevVersion != 'NO_DEV_VERSION'
       uses: docker/build-push-action@v6
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-latest
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:latest-${{ steps.get_version.outputs.versionState }}-latest
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:latest-${{ steps.get_version.outputs.versionState }}-${{ steps.get_version.outputs.versionSub }}
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:${{ steps.get_version.outputs.version }}-${{ steps.get_version.outputs.versionState }}-latest
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:${{ steps.get_version.outputs.version }}-${{ steps.get_version.outputs.versionState }}-${{ steps.get_version.outputs.versionSub }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-${{ needs.get-version.outputs.versionMain }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-${{ needs.get-version.outputs.versionMain }}-${{ needs.get-version.outputs.versionDevStage }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-${{ needs.get-version.outputs.versionMain }}-${{ needs.get-version.outputs.versionDevStage }}-${{ needs.get-version.outputs.versionDevVersion }}
 
     - name: Build and push Docker images (pre-release without subversion)
-      if: github.ref == 'refs/heads/pre-release' && steps.get_version.outputs.versionSub == 'missing'
+      if: github.ref == 'refs/heads/pre-release' && needs.get-version.outputs.versionDevStage != 'NO_DEV_STAGE' && needs.get-version.outputs.versionDevVersion == 'NO_DEV_VERSION'
       uses: docker/build-push-action@v6
       with:
         push: true
         tags: |
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-latest
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:latest-${{ steps.get_version.outputs.versionState }}
-          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:${{ steps.get_version.outputs.version }}-${{ steps.get_version.outputs.versionState }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-${{ needs.get-version.outputs.versionMain }}
+          ${{ secrets.DOCKER_USERNAME }}/kofi-websocket:dev-${{ needs.get-version.outputs.versionMain }}-${{ needs.get-version.outputs.versionDevStage }}
