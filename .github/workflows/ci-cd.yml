@@ -40,7 +40,7 @@ jobs:
           fi
 
       - name: Check Version for Production
-        if: github.ref == 'refs/heads/master'
+        if: github.event.pull_request.base.ref == 'master'
         run: |
           changelogVersion=$(grep "\[${{ steps.get_version.outputs.versionMain }}\]" CHANGES.md || echo "NO_VERSION")
           if [ "$changelogVersion" == "NO_VERSION" ]; then
@@ -57,7 +57,7 @@ jobs:
           fi
 
       - name: Check Dev Stage
-        if: github.base_ref == 'pre-release'
+        if: github.event.pull_request.base.ref == 'pre-release'
         run: |
           if [ "${{ steps.get_version.outputs.versionDevStage }}" == "NO_DEV_STAGE" ]; then
             echo "Fail: invalid development stage (missing)"

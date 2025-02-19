@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - CI/CD:
   - Modified the GitHub Actions so it queries the possible versions once at the start of the workflow.
+  - The workflow fails if no main version is found (for any release type)
   - For production releases (PR on `master`):
     - The workflow fails if the version is not found in the changelog
     - If version syntax follows the development version (`<release>-<stage [alpha/beta/rc/...]>-<devVersion>`, the use of the `devVersion` is optional), the workflow fails
