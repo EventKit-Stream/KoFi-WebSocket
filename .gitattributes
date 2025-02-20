@@ -1,2 +1,4 @@
-static/index.html linguist-documentation=true
 test_client.html linguist-documentation=true
+static/index.html linguist-documentation=true
+static/script.js linguist-documentation=true
+static/style.css linguist-documentation=true
