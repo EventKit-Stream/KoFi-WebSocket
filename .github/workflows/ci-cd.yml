@@ -51,8 +51,8 @@ jobs:
             echo "No development stage allowed in production"
             exit 1
           fi
-          if [ "${{ steps.get_version.outputs.versionDevVersion }}" != "NO_DEV_STAGE" ]; then
-            echo "No development stage allowed in production"
+          if [ "${{ steps.get_version.outputs.versionDevVersion }}" != "NO_DEV_VERSION" ]; then
+            echo "No development version allowed in production"
             exit 1
           fi
 
@@ -122,7 +122,7 @@ jobs:
         password: ${{ secrets.DOCKER_TOKEN  }}
 
     - name: Build and push Docker images (master)
-      if: github.ref == 'refs/heads/master'
+      if: github.ref == 'refs/heads/master' && needs.get-version.outputs.versionDevStage == 'NO_DEV_STAGE' && needs.get-version.outputs.versionDevVersion == 'NO_DEV_VERSION'
       uses: docker/build-push-action@v6
       with:
         push: true
