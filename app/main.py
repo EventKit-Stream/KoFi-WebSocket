@@ -45,6 +45,9 @@ app.add_middleware(
 
 @app.get("/version")
 async def _version():
+    """
+    Returns the current version of the FastAPI application as a JSON object.
+    """
     return {"version": app.version}
 
 
@@ -97,15 +100,9 @@ async def ko_fi_webhook(data: str = Form(...)):
 @app.websocket("/ws/{verification_token}")
 async def websocket_endpoint(websocket: WebSocket, verification_token: str):
     """
-    Establishes a WebSocket connection with the client and forwards incoming
-    Ko-fi webhooks to the corresponding connection.
-
-    The endpoint expects a verification token as a path parameter, which is used
-    to identify the connection. The endpoint will keep the connection alive by
-    sending a "pong" response to the "ping" message sent by the client.
-
-    If the connection is closed, the endpoint will remove the connection from the
-    active connections dictionary.
+    Handles a WebSocket connection for receiving Ko-fi webhook notifications.
+    
+    Establishes a WebSocket connection associated with the provided verification token, maintains connection health via ping/pong messages, and ensures proper cleanup when the connection is closed.
     """
     await websocket.accept()
     active_connections[verification_token].add(websocket)

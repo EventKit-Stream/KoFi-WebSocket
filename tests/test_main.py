@@ -146,7 +146,11 @@ async def test_webhook_max_retries_exceeded(client, sample_webhook_data):
 
 @pytest.mark.asyncio
 async def test_webhook_websocket_disconnect(client, sample_webhook_data):
-    """Test webhook WebSocket disconnect."""
+    """
+    Tests that when a WebSocket disconnect occurs during webhook processing, the connection is removed from active connections.
+    
+    Opens a WebSocket connection, mocks the send_json method to raise a disconnect, posts webhook data, and verifies the connection is cleaned up.
+    """
     async def mock_send_json(*args, **kwargs):
         raise WebSocketDisconnect()
 
@@ -167,7 +171,12 @@ async def test_webhook_websocket_disconnect(client, sample_webhook_data):
 
 
 def test_version_endpoint(client):
-    """Test the version endpoint."""
+    """
+    Tests that the /version endpoint returns the correct application version.
+    
+    Sends a GET request to /version and asserts the response status is 200 and the JSON
+    payload contains the expected version string.
+    """
     response = client.get("/version")
     assert response.status_code == 200
     assert response.json() == {"version": app.version}
