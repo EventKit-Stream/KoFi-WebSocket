@@ -6,6 +6,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-05-15
+
+### Changes in 1.2.0
+
+- Moved the documentation to the `docs` folder, to be served by github pages.
+- Image Repository is now ghcr.io instead of dockerhub
+
+- CI/CD:
+  - Reduction of automated builds of images (ref. [here](https://github.com/docker/metadata-action?tab=readme-ov-file#basic))
+    - The tags are now automatically generated
+
 ## [1.1.0] - 2025-02-20
 
 ### Changes in 1.1.0

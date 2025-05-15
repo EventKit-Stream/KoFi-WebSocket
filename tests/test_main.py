@@ -166,13 +166,6 @@ async def test_webhook_websocket_disconnect(client, sample_webhook_data):
             WebSocket.send_json = original_send_json
 
 
-def test_ping_endpoint(client):
-    """Test the ping endpoint."""
-    response = client.get("/ping")
-    assert response.status_code == 200
-    assert response.json() == {"message": "pong"}
-
-
 def test_version_endpoint(client):
     """Test the version endpoint."""
     response = client.get("/version")

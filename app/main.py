@@ -24,13 +24,12 @@ from collections import defaultdict
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Form
 from fastapi.exceptions import HTTPException
-from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 active_connections: dict[str, set[WebSocket]] = defaultdict(set)
 
 app = FastAPI(
-    version="1.1.0",
+    version="1.2.0",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -42,10 +41,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/ping")
-async def _ping():
-    return {"message": "pong"}
 
 
 @app.get("/version")
@@ -124,6 +119,3 @@ async def websocket_endpoint(websocket: WebSocket, verification_token: str):
         active_connections[verification_token].discard(websocket)
         if not active_connections[verification_token]:
             del active_connections[verification_token]
-
-# Keep it at the end to prevent routing issues
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
