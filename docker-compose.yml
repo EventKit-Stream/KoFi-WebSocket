@@ -1,7 +1,7 @@
 services:
   api:
     container_name: kofi-websocket
-    #image: lordlumineer/kofi-websocket:latest
+    #image: ghcr.io/eventkit-stream/kofi-websocket:latest
     build:
       context: .
     restart: unless-stopped

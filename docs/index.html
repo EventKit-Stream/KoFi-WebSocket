@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ko-fi WebSocket</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 
     <!-- SEO Meta Tags -->
     <meta name="description"
@@ -13,21 +13,21 @@
     <meta name="keywords" content="Ko-fi, WebSocket, real-time, notifications, streamer tools">
     <meta name="author" content="Lord Lumineer">
 
-    <!-- OpenGraph Meta Tags -->
-    <meta property="og:title" content="Ko-fi WebSocket">
+    <!-- og meta -->
+    <meta property="og:type" value="website" />
+    <meta property="og:title" value="Ko-fi WebSocket" />
     <meta property="og:description"
-        content="Get real-time Ko-fi notifications with WebSockets. Perfect for streamers and content creators.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ url }}">
-    <meta property="og:locale" content="en_US">
-    <meta property="og:image" content="/og_image.png">
+        value="Get real-time Ko-fi notifications with WebSockets. Perfect for streamers and content creators." />
+    <meta property="og:url" value="https://ko-fi.eventkit.stream" />
+    <meta property="og:image" value="https://ko-fi.eventkit.stream/images/banner.png" />
 
-    <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Ko-fi WebSocket">
+    <!-- twitter meta -->
+    <meta name="twitter:card" value="summary" />
+    <meta name="twitter:creator" value="@lordlumineer" />
+    <meta name="twitter:title" value="Ko-fi WebSocket" />
     <meta name="twitter:description"
-        content="Real-time Ko-fi notifications via WebSockets. Perfect for streamers and content creators.">
-    <meta name="twitter:image" content="/og_image.png">
+        value="Get real-time Ko-fi notifications with WebSockets. Perfect for streamers and content creators." />
+    <meta name="twitter:image" value="https://ko-fi.eventkit.stream/images/banner.png" />
 
     <!-- TailwindCSS and DaisyUI -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -333,6 +333,8 @@
             <h3 class="text-base mb-4">Directly try Ko-fi WebSocket in your browser.</h3>
             <div class="space-y-4">
                 <div class="flex flex-wrap gap-4">
+                    <input type="text" id="server-input" placeholder="Enter the WebSocket server URL"
+                        value="wss://ko-fi.eventkit.stream" class="input input-bordered flex-1 rounded-full">
                     <input type="text" id="token-input" placeholder="Enter your verification token"
                         class="input input-bordered flex-1 rounded-full">
                     <div>

@@ -2,7 +2,7 @@
 
 A FastAPI application that bridges KoFi webhooks to WebSocket connections, enabling real-time notifications of KoFi events.
 
-[![CI/CD](https://github.com/EventKit-Stream/KoFi-WebSocket/actions/workflows/ci-cd.yml/badge.svg?branch=master)](https://github.com/EventKit-Stream/KoFi-WebSocket/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/EventKit-Stream/KoFi-WebSocket/actions/workflows/publish-ghcr.yml/badge.svg?branch=master)](https://github.com/EventKit-Stream/KoFi-WebSocket/actions/workflows/publish-ghcr.yml)
 [![codecov](https://codecov.io/gh/EventKit-Stream/KoFi-WebSocket/graph/badge.svg?token=6MEX17B6J5)](https://codecov.io/gh/EventKit-Stream/KoFi-WebSocket)
 
 ## Features

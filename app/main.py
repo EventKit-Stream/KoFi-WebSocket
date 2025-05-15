@@ -24,13 +24,12 @@ from collections import defaultdict
 import json
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Form
 from fastapi.exceptions import HTTPException
-from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 active_connections: dict[str, set[WebSocket]] = defaultdict(set)
 
 app = FastAPI(
-    version="1.1.0",
+    version="1.2.0",
     docs_url=None,  # Disable Swagger UI
     redoc_url=None  # Disable ReDoc
 )
@@ -43,13 +42,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/ping")
-async def _ping():
-    return {"message": "pong"}
-
 
 @app.get("/version")
 async def _version():
+    """
+    Returns the current version of the FastAPI application as a JSON object.
+    """
     return {"version": app.version}
 
 
@@ -102,15 +100,9 @@ async def ko_fi_webhook(data: str = Form(...)):
 @app.websocket("/ws/{verification_token}")
 async def websocket_endpoint(websocket: WebSocket, verification_token: str):
     """
-    Establishes a WebSocket connection with the client and forwards incoming
-    Ko-fi webhooks to the corresponding connection.
-
-    The endpoint expects a verification token as a path parameter, which is used
-    to identify the connection. The endpoint will keep the connection alive by
-    sending a "pong" response to the "ping" message sent by the client.
-
-    If the connection is closed, the endpoint will remove the connection from the
-    active connections dictionary.
+    Handles a WebSocket connection for receiving Ko-fi webhook notifications.
+    
+    Establishes a WebSocket connection associated with the provided verification token, maintains connection health via ping/pong messages, and ensures proper cleanup when the connection is closed.
     """
     await websocket.accept()
     active_connections[verification_token].add(websocket)
@@ -124,6 +116,3 @@ async def websocket_endpoint(websocket: WebSocket, verification_token: str):
         active_connections[verification_token].discard(websocket)
         if not active_connections[verification_token]:
             del active_connections[verification_token]
-
-# Keep it at the end to prevent routing issues
-app.mount("/", StaticFiles(directory="static", html=True), name="static")

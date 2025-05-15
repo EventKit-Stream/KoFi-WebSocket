@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [ master ]
+  pull_request:
+    branches-ignore: [ master ]
+
+jobs:
+  test:
+    name: Run tests and collect coverage and linting
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: pytest --cov=app tests/ --cov-report=xml --junitxml=junit.xml -o junit_family=legacy --cov-report=term-missing
+

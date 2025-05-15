@@ -5,10 +5,12 @@ const CONFIG = {
 };
 
 // Codes
-const ws_code = `${window.location.protocol.replace('http', 'ws')}//${window.location.host}/ws/YOUR_VERIFICATION_TOKEN`;
+const http_protocol = 'https:'; // window.location.protocol;
+const ws_protocol = 'wss:'; // window.location.protocol.replace('http', 'ws');
+const host = 'api-ko-fi.eventkit.stream'; // window.location.host;
 
-const webhook_code = `${window.location.protocol}//${window.location.host}/webhook`
-
+const ws_code = `${ws_protocol}//${host}/ws/YOUR_VERIFICATION_TOKEN`;
+const webhook_code = `${http_protocol}//${host}/webhook`
 const ws_connect_code = `const ws = new WebSocket('${ws_code}');`
 
 const handle_events_code = `
@@ -41,7 +43,7 @@ const implementation_code = `
             }
 
             connect() {
-                this.ws = new WebSocket(\`${window.location.protocol.replace('http', 'ws')}//${window.location.host}/ws/\${this.token}\`);
+                this.ws = new WebSocket(\`${ws_protocol}//${host}/ws/\${this.token}\`);
 
                 this.ws.onopen = () => {
                     console.log('Connected to Ko-fi WebSocket');
@@ -232,14 +234,14 @@ class WebSocketDemo {
     }
 
     connectTestSocket() {
+        const wsUrlBase = document.getElementById('server-input').value.trim();
         const token = document.getElementById('token-input').value.trim();
         if (!token) {
             this.writeToTerminal('Please enter a verification token', 'error');
             return;
         }
 
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws/${token}`;
+        const wsUrl = `${wsUrlBase}/ws/${token}`;
 
         try {
             this.ws = new WebSocket(wsUrl);
@@ -281,7 +283,8 @@ class WebSocketDemo {
             };
 
             this.ws.onerror = (error) => {
-                this.writeToTerminal('Failed to connect. Please check your token and try again.', 'error');
+                console.error('WebSocket error:', error);
+                this.writeToTerminal('Failed to connect. Please check the url and/or your token and try again.', 'error');
                 this.ws.close();
             };
         } catch (error) {
@@ -376,6 +379,7 @@ class WebSocketDemo {
     updateButtons(connected) {
         const connectButton = document.getElementById('connect-button');
         document.getElementById('send-test-button').disabled = !connected;
+        document.getElementById('server-input').disabled = connected;
         document.getElementById('token-input').disabled = connected;
 
         connectButton.textContent = connected ? 'Disconnect' : 'Connect';
@@ -461,7 +465,7 @@ class VersionBadgeManager {
 
     async init() {
         try {
-            const response = await fetch('/version');
+            const response = await fetch(`${http_protocol}//${host}/version`);
             const data = await response.json();
             document.getElementById('version-badge').textContent = 'v' + data.version;
         } catch (error) {
