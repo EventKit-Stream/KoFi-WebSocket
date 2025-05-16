@@ -9,6 +9,8 @@ const http_protocol = 'https:'; // window.location.protocol;
 const ws_protocol = 'wss:'; // window.location.protocol.replace('http', 'ws');
 const host = 'api-ko-fi.eventkit.stream'; // window.location.host;
 
+document.getElementById('server-input').value = `${host}`;
+
 const ws_code = `${ws_protocol}//${host}/ws/YOUR_VERIFICATION_TOKEN`;
 const webhook_code = `${http_protocol}//${host}/webhook`
 const ws_connect_code = `const ws = new WebSocket('${ws_code}');`
@@ -241,7 +243,7 @@ class WebSocketDemo {
             return;
         }
 
-        const wsUrl = `${wsUrlBase}/ws/${token}`;
+        const wsUrl = `${ws_protocol}//${wsUrlBase}/ws/${token}`;
 
         try {
             this.ws = new WebSocket(wsUrl);
@@ -312,7 +314,7 @@ class WebSocketDemo {
             return;
         }
 
-        const baseUrl = `${window.location.protocol}//${window.location.host}/webhook`;
+        const baseUrl = `${http_protocol}//${host}/webhook`;
 
         this.writeToTerminal('Sending test message...', 'data');
 
@@ -338,7 +340,6 @@ class WebSocketDemo {
 
         const formData = new URLSearchParams();
         formData.append('data', JSON.stringify(webhookData));
-
         fetch(`${baseUrl}`, {
             method: 'POST',
             headers: {
@@ -355,7 +356,6 @@ class WebSocketDemo {
         const terminal = document.getElementById('terminal');
         const entry = document.createElement('div');
         entry.className = `terminal-entry ${type === 'error' ? 'text-error' : type === 'success' ? 'text-success' : ''}`;
-        console.log(message);
 
         if (typeof message === 'object') {
             if (Object.keys(message).includes('status')) {
